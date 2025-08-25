@@ -32,6 +32,7 @@ game_loop(struct arena *arena) {
     if (window_is_key_down(KEY_EXIT)) window_close();
     global_update(dt);
     entity_manager_update(dt);
+    renderer_request_text(&string_make(" !\"#$%&'()*+,-./0123456789:;<=>?\n@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]\n^_`abcdefghijklmnopqrstuvwxyz{|}~"), V2(-5.0f, 0.0f));
     renderer_submit();
     //log_infolf("FPS: %g", 1.0f/dt);
     return window_frame_end();

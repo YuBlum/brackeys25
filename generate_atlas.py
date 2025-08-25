@@ -14,56 +14,29 @@ json_names = [(f,n) for f,n in [(f+".json",n) for f,n in zip(file_names,names)] 
 img_paths  = [os.path.join(imgs_dir, n) for n in png_names]
 meta_paths = [(os.path.join(imgs_dir, f),n) for f,n in json_names]
 
-imgs = [Image.open(file).convert("RGBA") for file in img_paths]
+imgs = [(name, Image.open(file).convert("RGBA")) for file,name in zip(img_paths, names)]
+
 metas = []
 for file,n in meta_paths:
     with open(file) as f:
         metas.append((json.load(f),n))
 
-def next_pow2(x):
-    return 1 << (x - 1).bit_length()
+extrude_pixels = 2
 
-atlas_height = 0
-
-x, y = 0, 0
-row_height = 0
-
-sprite_imgs  = []
-sprite_infos = []
-
-atlas_width = 0
-exp = 0
-for img in imgs:
-    w, _ = img.size
-    while w > atlas_width:
-        exp += 1
-        atlas_width = 1<<exp
-
-for name, img in zip(names, imgs):
-    w, h = img.size
-    if x + w > atlas_width:
-        x = 0
-        y += row_height
-        row_height = 0
-    sprite_imgs.append((img, x, y))
-    sprite_infos.append({ "name": name, "x": x, "y": y, "w": w, "h": h, });
-    x += w
-    row_height = max(row_height, h)
-    atlas_height = max(atlas_height, y + h)
-
-animations = []
-glyphs     = []
-ascii      = [ " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~" ]
-has_font = False;
-repeated_glyph = {""}
+animations        = []
+in_animation_info = {}
+glyphs            = []
+font_name         = "";
+repeated_glyph    = set()
+ascii             = [ " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~" ]
 for meta, name in metas:
     if not "frameTags" in meta["meta"]:
         continue
     if "data" in meta["meta"]["frameTags"][0] and meta["meta"]["frameTags"][0]["data"] == "is_font":
-        if has_font:
+        if font_name != "":
             print("can't have more than two fonts, but '", name,"' is a font while already having one");
             exit(1)
-        has_font = True
+        font_name = name
         if not "slices" in meta["meta"]:
             print("font must have slices, but '", name, "' doesn't", sep="");
             exit(1)
@@ -89,13 +62,83 @@ for meta, name in metas:
                 "frame-width": meta["frames"][0]["frame"]["w"],
                 "first-frame": tag["from"]
             })
+        in_animation_info[name] = (len(meta["frames"]), meta["frames"][0]["frame"]["w"])
+        print(name, in_animation_info[name])
 #print(animations)
+
+def next_pow2(x):
+    return 1 << (x - 1).bit_length()
+
+atlas_height = 0
+
+x, y = extrude_pixels, extrude_pixels
+row_height = 0
+
+sprite_imgs  = []
+sprite_infos = []
+
+atlas_width = 0
+exp = 0
+for name, img in imgs:
+    w, _ = img.size
+    if name in in_animation_info:
+        frames_amount, _ = in_animation_info[name]
+        w += frames_amount*extrude_pixels*2
+    while w > atlas_width:
+        exp += 1
+        atlas_width = 1<<exp
+
+for name, img in imgs:
+    w, h = img.size
+    if x + w > atlas_width:
+        x = extrude_pixels
+        y += row_height+extrude_pixels
+        row_height = 0
+    spr_x = x + extrude_pixels
+    spr_y = y + extrude_pixels
+    sprite_imgs.append((img, name, x, y, w, h))
+    sprite_infos.append({ "name": name, "x": spr_x, "y": spr_y, "w": w, "h": h });
+    x += w+extrude_pixels
+    if name in in_animation_info:
+        frames_amount, _ = in_animation_info[name]
+        x += frames_amount*extrude_pixels*2
+    else:
+        x += extrude_pixels
+    row_height = max(row_height, h+extrude_pixels*2)
+    atlas_height = max(atlas_height, y + h+extrude_pixels*2)
 
 atlas_height = next_pow2(atlas_height)
 
 atlas_img = Image.new("RGBA", (atlas_width, atlas_height), (0, 0, 0, 0))
-for img, x, y in sprite_imgs:
-    atlas_img.paste(img, (x, y))
+def extrude_image(img, x, y, w, h):
+    top          = img.crop((0, 0, w, 1)).resize((w, extrude_pixels));
+    left         = img.crop((0, 0, 1, h)).resize((extrude_pixels, h));
+    bottom       = img.crop((0, h-1, w, h)).resize((w, extrude_pixels));
+    right        = img.crop((w-1, 0, w, h)).resize((extrude_pixels, h));
+    top_left     = Image.new("RGBA", (extrude_pixels, extrude_pixels), img.getpixel((0, 0)));
+    top_right    = Image.new("RGBA", (extrude_pixels, extrude_pixels), img.getpixel((w-1, 0)));
+    bottom_left  = Image.new("RGBA", (extrude_pixels, extrude_pixels), img.getpixel((0, h-1)));
+    bottom_right = Image.new("RGBA", (extrude_pixels, extrude_pixels), img.getpixel((w-1, h-1)));
+    atlas_img.paste(img,          (x+extrude_pixels, y+extrude_pixels))
+    atlas_img.paste(top,          (x+extrude_pixels, y))
+    atlas_img.paste(left,         (x, y+extrude_pixels))
+    atlas_img.paste(bottom,       (x+extrude_pixels, y+extrude_pixels+h))
+    atlas_img.paste(right,        (x+w+extrude_pixels, y+extrude_pixels))
+    atlas_img.paste(top_left,     (x, y))
+    atlas_img.paste(top_right,    (x+w+extrude_pixels, y))
+    atlas_img.paste(bottom_left,  (x, y+h+extrude_pixels))
+    atlas_img.paste(bottom_right, (x+w+extrude_pixels, y+h+extrude_pixels))
+
+for img, name, x, y, w, h in sprite_imgs:
+    if name in in_animation_info:
+        frames_amount, frame_width = in_animation_info[name]
+        frame_x = x
+        for i in range(0, frames_amount):
+            frame_x += extrude_pixels
+            extrude_image(img.crop((i*frame_width, 0, (i + 1) * frame_width, h)), frame_x, y, frame_width, h)
+            frame_x += frame_width + extrude_pixels
+    else:
+        extrude_image(img, x, y, w, h)
 
 atlas_data = atlas_img.tobytes()
 
@@ -132,6 +175,8 @@ atlas_h += "#define ATLAS_WIDTH %d\n" % atlas_width
 atlas_h += "#define ATLAS_HEIGHT %d\n" % atlas_height
 atlas_h += "#define ATLAS_PIXEL_W (1.0f/%d)\n" % atlas_width
 atlas_h += "#define ATLAS_PIXEL_H (1.0f/%d)\n\n" % atlas_height
+atlas_h += "#define ATLAS_EXTRUDE_W (%d.0f * ATLAS_PIXEL_W)\n\n" % extrude_pixels
+atlas_h += "#define ATLAS_EXTRUDE_H (%d.0f * ATLAS_PIXEL_H)\n\n" % extrude_pixels
 atlas_h += "static const uint8_t g_atlas_data[ATLAS_WIDTH*ATLAS_HEIGHT*4] = {\n"
 #for i in range(0, len(atlas_data), 4):
 #    atlas_h += "0x%02x%02x%02x%02x," % (atlas_data[i + 3], atlas_data[i + 2], atlas_data[i + 1], atlas_data[i + 0])
@@ -169,13 +214,14 @@ for anim in animations:
     atlas_h += "        .sprite = %s\n" % anim["sprite"]
     atlas_h += "    },\n"
 atlas_h += "};\n\n"
-if has_font:
+if font_name != "":
     atlas_h += "static const struct {\n"
     atlas_h += "    float offset;\n"
-    atlas_h += "    float width;\n"
+    atlas_h += "    float atlas_width;\n"
+    atlas_h += "    float game_width;\n"
     atlas_h += "} g_glyphs['~'-' '+1] = {\n"
     for glyph in glyphs:
-        atlas_h += "    { .offset = %d.0f * ATLAS_PIXEL_W, .width  = %d.0f * ATLAS_PIXEL_W }, /* %s */\n" % (glyph["offset"], glyph["width"], glyph["char"])
+        atlas_h += "    { .offset = %d.0f * ATLAS_PIXEL_W, .atlas_width  = %d.0f * ATLAS_PIXEL_W, .game_width  = %d.0f * UNIT_ONE_PIXEL }, /* %s */\n" % (glyph["offset"], glyph["width"], glyph["width"], glyph["char"])
     atlas_h += "};\n\n"
 atlas_h += "#endif/*__ATLAS_H__*/\n"
 

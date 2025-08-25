@@ -291,9 +291,6 @@ renderer_animation_get_data(enum animation animation) {
     return &g_atlas_animations[animation];
 }
 
-#define TEXEL_HALF_W (ATLAS_PIXEL_W*0.5f)
-#define TEXEL_HALF_H (ATLAS_PIXEL_H*0.5f)
-
 static void
 renderer_request_sprite_internal(enum sprite sprite, struct v2 position, struct v2 hsiz, struct v2 tpos, struct v2 tsiz, struct renderer_params p) {
 #if DEV
@@ -313,15 +310,11 @@ renderer_request_sprite_internal(enum sprite sprite, struct v2 position, struct 
     vertices[1].position = position;
     vertices[2].position = position;
     vertices[3].position = position;
-    /* Note for the future: the texcoords needs to be offseted by half a texel, this is to prevent random sprite leakage into the current sprite.
-   *                      Its also possible to add some padding into the sprite to also prevent this problem, the padding isn't just some blank
-   *                      padding but a copy of the edges of the sprite. usually 2 pixels of padding is preferable. the padding is also required
-   *                      if using mipmaps or linear filtering, that's not the case here though so this is fine.
-   */
-    vertices[0].texcoord = v2_add(tpos, V2(       TEXEL_HALF_W, tsiz.y-TEXEL_HALF_H));
-    vertices[1].texcoord = v2_add(tpos, V2(tsiz.x-TEXEL_HALF_W, tsiz.y-TEXEL_HALF_H));
-    vertices[2].texcoord = v2_add(tpos, V2(tsiz.x-TEXEL_HALF_W,        TEXEL_HALF_H));
-    vertices[3].texcoord = v2_add(tpos, V2(       TEXEL_HALF_W,        TEXEL_HALF_H));
+    /* Note for the future: The atlas must have extruding between sprites (2 px is enough) */
+    vertices[0].texcoord = v2_add(tpos, V2(  0.0f, tsiz.y));
+    vertices[1].texcoord = v2_add(tpos, V2(tsiz.x, tsiz.y));
+    vertices[2].texcoord = v2_add(tpos, V2(tsiz.x,   0.0f));
+    vertices[3].texcoord = v2_add(tpos, V2(  0.0f,   0.0f));
     vertices[0].origin = v2_mul(v2_sub(V2(-hsiz.x, -hsiz.y), p.origin), p.scale);
     vertices[1].origin = v2_mul(v2_sub(V2(+hsiz.x, -hsiz.y), p.origin), p.scale);
     vertices[2].origin = v2_mul(v2_sub(V2(+hsiz.x, +hsiz.y), p.origin), p.scale);
@@ -373,12 +366,30 @@ _renderer_request_animation(enum animation animation, uint32_t frame, struct v2 
 #endif
     auto sprite = g_atlas_animations[animation].sprite;
     struct v2 size     = { g_atlas_animations[animation].frame_width, g_atlas_sprite_sizes[sprite].y },
-    top_left = { size.x * (frame + g_atlas_animations[animation].first_frame), 0.0f };
+              top_left = { (size.x + ATLAS_EXTRUDE_W*2) * (frame + g_atlas_animations[animation].first_frame)+ATLAS_EXTRUDE_W, 0.0f };
     _renderer_request_sprite_slice(sprite, position, top_left, size, p);
 }
 
+#define TEXT_PADDING (1.25*UNIT_ONE_PIXEL)
+
 void
-_renderer_request_text(struct string text, struct v2 position, struct renderer_params params) {
+_renderer_request_text(struct string *text, struct v2 position, struct renderer_params p) {
+    struct v2 cur_pos = position;
+    auto h = g_atlas_sprite_sizes[SPR_FONT].y - ATLAS_EXTRUDE_H*2;
+    auto in_game_h = h * ATLAS_HEIGHT * UNIT_ONE_PIXEL;
+    for (uint32_t i = 0; i < text->length; i++) {
+        uint32_t c = text->data[i];
+        if (c >= ' ' && c <= '~') {
+            c -= ' ';
+            struct v2 size     = { g_glyphs[c].atlas_width, h },
+                      top_left = { g_glyphs[c].offset, ATLAS_EXTRUDE_H };
+            _renderer_request_sprite_slice(SPR_FONT, v2_add(cur_pos, V2(g_glyphs[c].game_width * 0.5f, -in_game_h * 0.5f)), top_left, size, p);
+            cur_pos.x += g_glyphs[c].game_width + TEXT_PADDING;
+        } else if (c == '\n') {
+            cur_pos.x = position.x;
+            cur_pos.y -= in_game_h;
+        }
+    }
 }
 
 void

@@ -48,7 +48,7 @@ void _renderer_request_animation(enum animation animation, uint32_t frame, struc
 #define renderer_request_animation(animation, frame, position, ...) \
 _renderer_request_animation(animation, frame, position, (struct renderer_params) { .scale = V2S(1.0f), .color = WHITE, .opacity = 1.0f, __VA_ARGS__ })
 
-void _renderer_request_text(struct string text, struct v2 position, struct renderer_params params);
+void _renderer_request_text(struct string *text, struct v2 position, struct renderer_params params);
 #define renderer_request_text(text, position, ...) \
 _renderer_request_text(text, position, (struct renderer_params) { .scale = V2S(1.0f), .color = WHITE, .opacity = 1.0f, __VA_ARGS__ })
 
