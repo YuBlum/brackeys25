@@ -2,8 +2,8 @@
 #define __MIXER_H__
 
 struct sound_result {
-  uint32_t sound_handle;
-  bool ok;
+    uint32_t sound_handle;
+    bool ok;
 };
 
 bool mixer_make(void);

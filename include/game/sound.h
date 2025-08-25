@@ -7,7 +7,7 @@
 #define INVALID_SOUND ((uint32_t)-1)
 
 enum sound {
-  SOUNDS_AMOUNT = 1
+    SOUNDS_AMOUNT = 1
 };
 
 bool sound_init(void);

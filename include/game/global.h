@@ -2,8 +2,7 @@
 #define __GLOBAL_H__
 
 struct global {
-  float time;
-  bool show_colliders;
+    int _;
 };
 
 extern struct global global;

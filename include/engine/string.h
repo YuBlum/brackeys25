@@ -5,20 +5,20 @@
 #include "engine/arena.h"
 
 struct str {
-  size_t length;
-  size_t capacity;
-  char data[];
+    size_t length;
+    size_t capacity;
+    char data[];
 };
 
 struct str_view {
-  size_t length;
-  const char *data;
+    size_t length;
+    const char *data;
 };
 #define str_view_make_from_lit(str_lit) (struct str_view) { sizeof (str_lit)-1, str_lit }
 
 struct str_joint {
-  size_t amount;
-  struct str_view views[];
+    size_t amount;
+    struct str_view views[];
 };
 #define str_join_make(...) (struct str_joint) { sizeof ((struct str_view) { __VA_ARGS__ }) / sizeof (struct str_view), { __VA_ARGS__ } }
 

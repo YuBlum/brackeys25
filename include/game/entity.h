@@ -6,20 +6,20 @@
 #include "engine/renderer.h"
 
 enum entity_state {
-  STM_IDLE = 0,
-  STM_WALK,
-  STM_PRESSED = STM_WALK,
-  STM_AMOUNT
+    STM_IDLE = 0,
+    STM_WALK,
+    STM_PRESSED = STM_WALK,
+    STM_AMOUNT
 };
 
 enum entity_flag {
-  NO_FLAGS = 0,
-  IS_ALIVE = 1 << 0,
+    NO_FLAGS = 0,
+    IS_ALIVE = 1 << 0,
 };
 
 struct entity_handle {
-  uint32_t index;
-  uint32_t generation;
+    uint32_t index;
+    uint32_t generation;
 };
 /* bascially the generations starts to be valid at number one
  * because of this the 'ENTITY_HANDLE_NONE' would just be valid if the entity specifically at index 0
@@ -27,16 +27,16 @@ struct entity_handle {
 #define ENTITY_NONE ((struct entity_handle){0})
 
 struct entity {
-  void (*update)(struct entity *, float);
-  void (*render)(struct entity *);
-  enum entity_flag flags;
-  enum entity_flag next_flags;
-  struct v2 position;
+    void (*update)(struct entity *, float);
+    void (*render)(struct entity *);
+    enum entity_flag flags;
+    enum entity_flag next_flags;
+    struct v2 position;
 };
 
 struct entities {
-  struct entity **data;
-  uint32_t amount;
+    struct entity **data;
+    uint32_t amount;
 };
 
 void entity_add_flags(struct entity *entity, enum entity_flag flags);

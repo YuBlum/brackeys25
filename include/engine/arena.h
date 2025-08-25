@@ -5,22 +5,22 @@
 #include <stdalign.h>
 
 struct arena {
-  size_t capacity;
-  size_t position;
-  size_t position_prv;
-  size_t alignment;
-  size_t commited;
-  size_t array_length; /* <- for dynamic arrays */
-  uint8_t data[];
+    size_t capacity;
+    size_t position;
+    size_t position_prv;
+    size_t alignment;
+    size_t commited;
+    size_t array_length; /* <- for dynamic arrays */
+    uint8_t data[];
 };
 
 struct arena_state {
-  size_t top;
-  size_t position;
-  size_t position_prv;
-  size_t alignment;
-  size_t cur_capacity;
-  uint8_t *base;
+    size_t top;
+    size_t position;
+    size_t position_prv;
+    size_t alignment;
+    size_t cur_capacity;
+    uint8_t *base;
 };
 
 struct arena *arena_make(size_t capacity, size_t alignment);
@@ -42,37 +42,37 @@ bool arena_clear(struct arena *arena);
 
 static inline void *
 __arena_array_make__(size_t capacity, size_t alignment) {
-  struct arena *arena = arena_make(capacity, alignment);
-  if (!arena) return 0;
-  return arena ? arena + 1 : 0;
+    struct arena *arena = arena_make(capacity, alignment);
+    if (!arena) return 0;
+    return arena ? arena + 1 : 0;
 }
 static inline void *
 __arena_array_grow__(struct arena *arena, bool not_zeroed, uint32_t type_size, uint32_t amount) {
-  void *res = arena_push(arena, not_zeroed, type_size * amount);
-  if (res) arena->array_length += amount;
-  return res;
+    void *res = arena_push(arena, not_zeroed, type_size * amount);
+    if (res) arena->array_length += amount;
+    return res;
 }
 #define arena_array_make(capacity, T) ((T *)__arena_array_make__(capacity * sizeof (T), alignof (T)))
 #define arena_array_get_arena(array) (((struct arena *)(array)) - 1)
 #define arena_array_grow(array, not_zeroed, amount) ((typeof (array[0]) *)__arena_array_grow__(arena_array_get_arena(array), not_zeroed, sizeof (array[0]), amount))
 #define arena_array_push(array, value) do { \
-  typeof(array[0]) *p = arena_array_grow(array, true, 1); \
-  if (p) { \
-    *p = value; \
-  } \
+    typeof(array[0]) *p = arena_array_grow(array, true, 1); \
+    if (p) { \
+        *p = value; \
+    } \
 } while (0)
 #define arena_array_pop(array) do { \
-  struct arena *arena = arena_array_get_arena(array); \
-  if (arena_pop_type(arena, typeof (array[0]))) { \
-    arena->array_length--;\
-  } \
+    struct arena *arena = arena_array_get_arena(array); \
+    if (arena_pop_type(arena, typeof (array[0]))) { \
+        arena->array_length--;\
+    } \
 } while (0)
 #define arena_array_length(array) (arena_array_get_arena(array)->array_length)
 #define arena_array_clear(array) do { \
-  struct arena *arena = arena_array_get_arena(array); \
-  if (arena_clear(arena)) { \
-    arena->array_length = 0;\
-  } \
+    struct arena *arena = arena_array_get_arena(array); \
+    if (arena_clear(arena)) { \
+        arena->array_length = 0;\
+    } \
 } while (0)
 #define arena_array_destroy(array) arena_destroy(arena_array_get_arena(array))
 

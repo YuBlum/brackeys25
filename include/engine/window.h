@@ -5,20 +5,20 @@
 #include "engine/arena.h"
 
 enum key : uint8_t {
-  KEY_LEFT = 0,
-  KEY_RIGHT,
-  KEY_UP,
-  KEY_DOWN,
-  KEY_INTERACT,
-  KEY_EXIT,
-  KEY_DEBUG0,
-  KEY_AMOUNT,
+    KEY_LEFT = 0,
+    KEY_RIGHT,
+    KEY_UP,
+    KEY_DOWN,
+    KEY_INTERACT,
+    KEY_EXIT,
+    KEY_DEBUG0,
+    KEY_AMOUNT,
 };
 
 enum button : uint8_t {
-  BTN_LEFT = 0,
-  BTN_RIGHT,
-  BUTTON_AMOUNT
+    BTN_LEFT = 0,
+    BTN_RIGHT,
+    BUTTON_AMOUNT
 };
 
 bool window_make();
