@@ -22,6 +22,14 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
+    if (entity_get_flags(e, MOVABLE|WIGGLE)) wiggle_animation(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_get_flags(e, MOVABLE|RENDER_SPRITE)) change_sprite_looking_direction(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
     if (entity_get_flags(e, FOLLOW_CURSOR|STATE_MACHINE)) update_cursor_state(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {

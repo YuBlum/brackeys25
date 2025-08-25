@@ -2,7 +2,8 @@
 #define __SPRITES_H__
 
 enum sprite {
-    SPR_PIXEL = 0,
+    SPR_PLAYER = 0,
+    SPR_PIXEL,
     SPR_AIM,
     SPR_FONT,
     SPR_TEST,

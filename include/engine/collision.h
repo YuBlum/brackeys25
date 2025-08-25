@@ -14,8 +14,8 @@ check_rect_rect(struct v2 p0, struct v2 s0, struct v2 p1, struct v2 s1) {
 
 static inline bool
 check_rect_circle(struct v2 rp, struct v2 s, struct v2 cp, float r) {
-    struct v2 d = v2_sub(cp, V2(MAX(rp.x - s.x * 0.5f, MIN(cp.x, rp.x + s.x * 0.5f)),
-                                MAX(rp.y - s.y * 0.5f, MIN(cp.y, rp.y + s.y * 0.5f))));
+    struct v2 d = v2_sub(cp, V2(clamp(cp.x, rp.x - s.x * 0.5f, rp.x + s.x * 0.5f),
+                                clamp(cp.y, rp.y - s.y * 0.5f, rp.y + s.y * 0.5f)));
     return (d.x*d.x + d.y*d.y) <= r*r;
 }
 

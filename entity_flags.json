@@ -9,7 +9,8 @@
     "HAS_WEAPON",
     "FOLLOW_CURSOR",
     "STATE_MACHINE",
-    "LOOPABLE"
+    "LOOPABLE",
+    "WIGGLE"
   ]
 }
 

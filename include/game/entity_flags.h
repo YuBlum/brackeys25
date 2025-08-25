@@ -13,6 +13,7 @@ enum entity_flag {
   FOLLOW_CURSOR = 1 << 7,
   STATE_MACHINE = 1 << 8,
   LOOPABLE = 1 << 9,
+  WIGGLE = 1 << 10,
 };
 
 #endif/*__ENTITY_FLAGS_H__*/

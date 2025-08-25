@@ -10,19 +10,21 @@
 
 void
 test_entities(void) {
-    auto player = entity_make(RENDER_SPRITE|MOVABLE|KEYBOARD_CONTROLLED|HAS_WEAPON);
-    auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
+    auto player = entity_make(RENDER_SPRITE|MOVABLE|KEYBOARD_CONTROLLED|HAS_WEAPON|WIGGLE);
+    //auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
 
-    player->position     = V2S(0.0f);
-    player->size         = V2S(1.0f);
-    player->speed        = 8.0f;
-    player->weapon_angle = 0.0f;
-    player->sprite       = SPR_PLAYER_TEST;
+    player->position          = V2S(0.0f);
+    player->size              = V2S(1.0f);
+    player->speed             = 5.0f;
+    player->weapon_angle      = 0.0f;
+    player->sprite            = SPR_PLAYER;
+    player->scale             = V2S(1.0f);
+    player->looking_direction = 1.0f;
 
-    cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;
-    cursor->state_animation[STM_PRESSED] = ANIM_AIM_PRESSED;
-    cursor->scale                        = V2S(1.0f);
-    cursor->depth                        = -INFINITY;
+    //cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;
+    //cursor->state_animation[STM_PRESSED] = ANIM_AIM_PRESSED;
+    //cursor->scale                        = V2S(1.0f);
+    //cursor->depth                        = -INFINITY;
 }
 
 bool
@@ -32,7 +34,7 @@ game_loop(struct arena *arena) {
     if (window_is_key_down(KEY_EXIT)) window_close();
     global_update(dt);
     entity_manager_update(dt);
-    renderer_request_text(&string_make(" !\"#$%&'()*+,-./0123456789:;<=>?\n@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]\n^_`abcdefghijklmnopqrstuvwxyz{|}~"), V2(-5.0f, 0.0f));
+    //renderer_request_text(&string_make(" !\"#$%&'()*+,-./0123456789:;<=>?\n@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]\n^_`abcdefghijklmnopqrstuvwxyz{|}~"), V2(-5.0f, 0.0f));
     renderer_submit();
     //log_infolf("FPS: %g", 1.0f/dt);
     return window_frame_end();

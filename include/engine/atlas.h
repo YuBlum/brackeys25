@@ -19,13 +19,15 @@ static const uint8_t g_atlas_data[ATLAS_WIDTH*ATLAS_HEIGHT*4] = {
 
 static const struct v2 g_atlas_sprite_positions[SPRITES_AMOUNT] = {
     { 4.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 9.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 77.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 888.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 930.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 24.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 29.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 97.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 908.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 950.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
 };
 
 static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {
+    { 16.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
     { 1.0f * ATLAS_PIXEL_W, 1.0f * ATLAS_PIXEL_H },
     { 42.0f * ATLAS_PIXEL_W, 7.0f * ATLAS_PIXEL_H },
     { 807.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
@@ -34,6 +36,7 @@ static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {
 };
 
 static const struct v2 g_atlas_sprite_half_sizes[SPRITES_AMOUNT] = {
+    { 8.0f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
     { 0.5f * UNIT_ONE_PIXEL, 0.5f * UNIT_ONE_PIXEL },
     { 21.0f * UNIT_ONE_PIXEL, 3.5f * UNIT_ONE_PIXEL },
     { 403.5f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },

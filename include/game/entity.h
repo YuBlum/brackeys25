@@ -44,6 +44,8 @@ struct entity {
     uint32_t current_frame;
     uint32_t previous_frame;
     enum entity_state state;
+    float wiggle_time;
+    float looking_direction;
 };
 
 struct entities {

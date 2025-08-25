@@ -29,6 +29,31 @@ ON_UPDATE_SYSTEM(move, MOVABLE) {
     self->position = self->next_position;
 }
 
+ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE, WIGGLE) {
+    if (self->direction.x == 0.0f && self->direction.y == 0.0f) {
+        constexpr float WIGGLE_STOP_SPEED = 0.9999f;
+        self->wiggle_time = 0.0f;
+        self->angle = lerp_smooth(self->angle, 0.0f, WIGGLE_STOP_SPEED, dt);
+        self->scale = v2_lerp_smooth(self->scale, V2S(1.0f), WIGGLE_STOP_SPEED, dt);
+    } else {
+        constexpr float WIGGLE_FREQUENCY = 2.0f;
+        constexpr float WIGGLE_ANGLE     = (float)PI/6.0;
+        constexpr float WIGGLE_SCALE     = 0.1f;
+        self->wiggle_time += dt;
+        float t = self->wiggle_time * WIGGLE_FREQUENCY * PI * 2;
+        self->angle = sinf(t) * WIGGLE_ANGLE;
+        self->scale.x = 1.0f + sinf(t) * WIGGLE_SCALE;
+        self->scale.y = 1.0f + cosf(t) * WIGGLE_SCALE;
+    }
+}
+
+ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE, RENDER_SPRITE) {
+    (void)dt;
+    if (self->direction.x != 0.0f) {
+        self->looking_direction = self->direction.x > 0.0f ? 1.0f : -1.0f;
+    }
+}
+
 ON_UPDATE_SYSTEM(update_cursor_state, FOLLOW_CURSOR, STATE_MACHINE) {
   (void)dt;
   auto prv_state = self->state;
@@ -76,7 +101,9 @@ ON_RENDER_SYSTEM(render_animation, RENDER_ANIMATION) {
 ON_RENDER_SYSTEM(render_sprite, RENDER_SPRITE) {
     renderer_request_sprite(
         self->sprite,
-        self->position
+        self->position,
+        .angle = self->angle,
+        .scale = { self->scale.x * self->looking_direction, self->scale.y }
     );
 }
 
