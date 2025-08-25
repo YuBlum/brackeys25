@@ -5,6 +5,7 @@
 #include "engine/arena.h"
 #include "engine/math.h"
 #include "engine/sprites.h"
+#include "engine/string.h"
 
 struct color { float r, g, b; };
 #define RGB(r, g, b) ((struct color) { r, g, b })
@@ -46,6 +47,10 @@ _renderer_request_sprite_slice(sprite, position, top_left, size, (struct rendere
 void _renderer_request_animation(enum animation animation, uint32_t frame, struct v2 position, struct renderer_params params);
 #define renderer_request_animation(animation, frame, position, ...) \
 _renderer_request_animation(animation, frame, position, (struct renderer_params) { .scale = V2S(1.0f), .color = WHITE, .opacity = 1.0f, __VA_ARGS__ })
+
+void _renderer_request_text(struct string text, struct v2 position, struct renderer_params params);
+#define renderer_request_text(text, position, ...) \
+_renderer_request_text(text, position, (struct renderer_params) { .scale = V2S(1.0f), .color = WHITE, .opacity = 1.0f, __VA_ARGS__ })
 
 void renderer_request_circle(struct v2 position, float radius, struct color color, float opacity);
 void renderer_request_rect(struct v2 position, struct v2 size, struct color color, float opacity, float depth);

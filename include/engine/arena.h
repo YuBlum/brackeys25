@@ -14,20 +14,12 @@ struct arena {
     uint8_t data[];
 };
 
-struct arena_state {
-    size_t top;
-    size_t position;
-    size_t position_prv;
-    size_t alignment;
-    size_t cur_capacity;
-    uint8_t *base;
-};
-
 struct arena *arena_make(size_t capacity, size_t alignment);
 #define arena_make_typed(capacity, T) arena_make(capacity * sizeof (T), alignof (T))
 bool arena_destroy(struct arena *arena);
 
 void *arena_get_base(struct arena *arena);
+void *arena_get_top(struct arena *arena);
 #define arena_get_base_typed(arena, T) ((T *)arena_get_base(arena))
 bool arena_is_last_alloc(struct arena *arena, void *ptr);
 size_t arena_last_alloc_real_length(struct arena *arena);

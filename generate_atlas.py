@@ -52,17 +52,43 @@ for name, img in zip(names, imgs):
     atlas_height = max(atlas_height, y + h)
 
 animations = []
+glyphs     = []
+ascii      = [ " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "\\", "]", "^", "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~" ]
+has_font = False;
+repeated_glyph = {""}
 for meta, name in metas:
     if not "frameTags" in meta["meta"]:
         continue
-    for tag in meta["meta"]["frameTags"]:
-        animations.append({
-            "name": name+"_"+tag["name"].upper(),
-            "sprite": "SPR_"+name,
-            "durations": [f["duration"]/1000 for f in meta["frames"][tag["from"]:(tag["to"]+1)]],
-            "frame-width": meta["frames"][0]["frame"]["w"],
-            "first-frame": tag["from"]
-        })
+    if "data" in meta["meta"]["frameTags"][0] and meta["meta"]["frameTags"][0]["data"] == "is_font":
+        if has_font:
+            print("can't have more than two fonts, but '", name,"' is a font while already having one");
+            exit(1)
+        has_font = True
+        if not "slices" in meta["meta"]:
+            print("font must have slices, but '", name, "' doesn't", sep="");
+            exit(1)
+        for char in ascii:
+            for slice in meta["meta"]["slices"]:
+                if slice["name"] != char:
+                    continue
+                if slice["name"] in repeated_glyph:
+                    print("font '", name, "' has two '", slice["name"], "' slices", sep="");
+                    exit(1)
+                repeated_glyph.add(slice["name"])
+                glyphs.append({
+                    "char": char,
+                    "offset": slice["keys"][0]["bounds"]["x"],
+                    "width": slice["keys"][0]["bounds"]["w"],
+                })
+    else:
+        for tag in meta["meta"]["frameTags"]:
+            animations.append({
+                "name": name+"_"+tag["name"].upper(),
+                "sprite": "SPR_"+name,
+                "durations": [f["duration"]/1000 for f in meta["frames"][tag["from"]:(tag["to"]+1)]],
+                "frame-width": meta["frames"][0]["frame"]["w"],
+                "first-frame": tag["from"]
+            })
 #print(animations)
 
 atlas_height = next_pow2(atlas_height)
@@ -77,24 +103,24 @@ sprites_h  = "#ifndef __SPRITES_H__\n"
 sprites_h += "#define __SPRITES_H__\n\n"
 sprites_h += "enum sprite {\n"
 for i, info in enumerate(sprite_infos):
-    sprites_h += "  SPR_%s" % info["name"]
+    sprites_h += "    SPR_%s" % info["name"]
     if i == 0:
         sprites_h += " = 0"
     sprites_h += ",\n"
-sprites_h += "  SPRITES_AMOUNT\n};\n\n"
+sprites_h += "    SPRITES_AMOUNT\n};\n\n"
 sprites_h += "enum animation {\n"
 for i, anim in enumerate(animations):
-    sprites_h += "  ANIM_%s" % anim["name"]
+    sprites_h += "    ANIM_%s" % anim["name"]
     if i == 0:
         sprites_h += " = 0"
     sprites_h += ",\n"
-sprites_h += "  ANIMATIONS_AMOUNT\n};\n\n"
+sprites_h += "    ANIMATIONS_AMOUNT\n};\n\n"
 sprites_h += "struct animation_data {\n"
-sprites_h += "  const float *durations;\n"
-sprites_h += "  float frame_width;\n"
-sprites_h += "  uint32_t frames_amount;\n"
-sprites_h += "  uint32_t first_frame;\n"
-sprites_h += "  enum sprite sprite;\n"
+sprites_h += "    const float *durations;\n"
+sprites_h += "    float frame_width;\n"
+sprites_h += "    uint32_t frames_amount;\n"
+sprites_h += "    uint32_t first_frame;\n"
+sprites_h += "    enum sprite sprite;\n"
 sprites_h += "};\n\n"
 sprites_h += "#endif/*__SPRITES_H__*/\n"
 
@@ -113,11 +139,11 @@ atlas_h += "#embed \"imgs/atlas.bin\"\n"
 atlas_h += "};\n\n"
 atlas_h += "static const struct v2 g_atlas_sprite_positions[SPRITES_AMOUNT] = {\n"
 for info in sprite_infos:
-    atlas_h += "  { %d.0f * ATLAS_PIXEL_W, %d.0f * ATLAS_PIXEL_H },\n" % (info["x"], info["y"])
+    atlas_h += "    { %d.0f * ATLAS_PIXEL_W, %d.0f * ATLAS_PIXEL_H },\n" % (info["x"], info["y"])
 atlas_h += "};\n\n"
 atlas_h += "static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {\n"
 for info in sprite_infos:
-    atlas_h += "  { %d.0f * ATLAS_PIXEL_W, %d.0f * ATLAS_PIXEL_H },\n" % (info["w"], info["h"])
+    atlas_h += "    { %d.0f * ATLAS_PIXEL_W, %d.0f * ATLAS_PIXEL_H },\n" % (info["w"], info["h"])
 atlas_h += "};\n\n"
 atlas_h += "static const struct v2 g_atlas_sprite_half_sizes[SPRITES_AMOUNT] = {\n"
 for info in sprite_infos:
@@ -127,22 +153,30 @@ for info in sprite_infos:
     h = "%g" % (info["h"] * 0.5)
     if "." not in h:
         h += ".0"
-    atlas_h += "  { %sf * UNIT_ONE_PIXEL, %sf * UNIT_ONE_PIXEL },\n" % (w, h)
+    atlas_h += "    { %sf * UNIT_ONE_PIXEL, %sf * UNIT_ONE_PIXEL },\n" % (w, h)
 atlas_h += "};\n\n"
 for anim in animations:
     atlas_h += "static const float g_atlas_animation_durations_" + anim["name"].lower() + ("[%u]" % len(anim["durations"])) + " = {\n"
-    atlas_h += "".join("  %g,\n" % d for d in anim["durations"])
+    atlas_h += "".join("    %g,\n" % d for d in anim["durations"])
     atlas_h += "};\n\n"
 atlas_h += "static const struct animation_data g_atlas_animations[ANIMATIONS_AMOUNT] = {\n"
 for anim in animations:
-    atlas_h += "  {\n"
-    atlas_h += "    .durations = g_atlas_animation_durations_" + anim["name"].lower() + ",\n"
-    atlas_h += "    .frame_width = %d.0f * ATLAS_PIXEL_W,\n" % anim["frame-width"]
-    atlas_h += "    .frames_amount = %d,\n" % len(anim["durations"])
-    atlas_h += "    .first_frame = %d,\n" % anim["first-frame"]
-    atlas_h += "    .sprite = %s\n" % anim["sprite"]
-    atlas_h += "  },\n"
+    atlas_h += "    {\n"
+    atlas_h += "        .durations = g_atlas_animation_durations_" + anim["name"].lower() + ",\n"
+    atlas_h += "        .frame_width = %d.0f * ATLAS_PIXEL_W,\n" % anim["frame-width"]
+    atlas_h += "        .frames_amount = %d,\n" % len(anim["durations"])
+    atlas_h += "        .first_frame = %d,\n" % anim["first-frame"]
+    atlas_h += "        .sprite = %s\n" % anim["sprite"]
+    atlas_h += "    },\n"
 atlas_h += "};\n\n"
+if has_font:
+    atlas_h += "static const struct {\n"
+    atlas_h += "    float offset;\n"
+    atlas_h += "    float width;\n"
+    atlas_h += "} g_glyphs['~'-' '+1] = {\n"
+    for glyph in glyphs:
+        atlas_h += "    { .offset = %d.0f * ATLAS_PIXEL_W, .width  = %d.0f * ATLAS_PIXEL_W }, /* %s */\n" % (glyph["offset"], glyph["width"], glyph["char"])
+    atlas_h += "};\n\n"
 atlas_h += "#endif/*__ATLAS_H__*/\n"
 
 #print(atlas_h)

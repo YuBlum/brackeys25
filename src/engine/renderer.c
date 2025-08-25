@@ -66,7 +66,7 @@ static float g_projection[3*3] = {
 #define SHADER_LOG_CAPACITY 512
 
 static uint32_t
-shader_make(GLenum type, const struct str_view *src) {
+shader_make(GLenum type, const struct string *src) {
 #if DEV
     const char *shader_str = 0;
     switch (type) {
@@ -110,7 +110,7 @@ shader_make(GLenum type, const struct str_view *src) {
 }
 
 static uint32_t
-shader_program_make(const struct str_view *vert_src, const struct str_view *frag_src) {
+shader_program_make(const struct string *vert_src, const struct string *frag_src) {
     log_infolf("%s: starting shader program creation...", __func__);
     uint32_t program = glCreateProgram();
     if (!program) {
@@ -375,6 +375,10 @@ _renderer_request_animation(enum animation animation, uint32_t frame, struct v2 
     struct v2 size     = { g_atlas_animations[animation].frame_width, g_atlas_sprite_sizes[sprite].y },
     top_left = { size.x * (frame + g_atlas_animations[animation].first_frame), 0.0f };
     _renderer_request_sprite_slice(sprite, position, top_left, size, p);
+}
+
+void
+_renderer_request_text(struct string text, struct v2 position, struct renderer_params params) {
 }
 
 void

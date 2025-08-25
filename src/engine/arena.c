@@ -2,7 +2,6 @@
 #include "engine/arena.h"
 #include "engine/os.h"
 
-#if DEV
 /* NOTE: assumes non-zero alignment; if 0 is passed, ensure it is handled later */
 static inline bool
 is_power_of_2_non_zero(size_t alignment, const char *func_name) {
@@ -12,7 +11,6 @@ is_power_of_2_non_zero(size_t alignment, const char *func_name) {
     }
     return true;
 }
-#endif
 
 static inline size_t
 __arena_align__(size_t length, size_t alignment
@@ -20,12 +18,12 @@ __arena_align__(size_t length, size_t alignment
 , const char *func_name
 #endif
 ) {
-#if DEV
     if (!alignment) {
+#if DEV
         log_errorlf("%s: passing 0 alignment", func_name);
+#endif
         return length;
     }
-#endif
     return (length + alignment - 1) & ~(alignment - 1);
 }
 #if DEV
@@ -58,12 +56,10 @@ arena_make(size_t capacity, size_t alignment) {
 
 bool
 arena_destroy(struct arena *arena) {
-#if DEV
     if (!arena) {
         log_errorlf("%s: passing invalid arena", __func__);
         return false;
     }
-#endif
     if (!os_mem_free(arena, sizeof (struct arena) + arena->capacity)) {
         log_errorlf("%s: failed to free arena memory", __func__);
         return false;
@@ -73,18 +69,15 @@ arena_destroy(struct arena *arena) {
 
 void *
 arena_get_base(struct arena *arena) {
-#if DEV
     if (!arena) {
         log_errorlf("%s: passing invalid arena", __func__);
         return 0;
     }
-#endif
     return arena->data;
 }
 
 bool
 arena_is_last_alloc(struct arena *arena, void *ptr) {
-#if DEV
     if (!arena) {
         log_errorlf("%s: passing invalid arena", __func__);
         return false;
@@ -93,29 +86,35 @@ arena_is_last_alloc(struct arena *arena, void *ptr) {
         log_errorlf("%s: pointer is not valid on this arena", __func__);
         return false;
     }
-#endif
     size_t ptr_position = (size_t)ptr - (size_t)arena->data;
     return ptr_position == arena->position_prv;
 }
 
 size_t
 arena_last_alloc_real_length(struct arena *arena) {
-#if DEV
     if (!arena) {
         log_errorlf("%s: passing invalid arena", __func__);
         return 0;
     }
-#endif
     return arena->position - arena->position_prv;
 }
 
 void *
-arena_push(struct arena *arena, bool not_zeroed, size_t length) {
-#if DEV
+arena_get_top(struct arena *arena) {
     if (!arena) {
         log_errorlf("%s: passing invalid arena", __func__);
         return 0;
     }
+    return &arena->data[arena->position];
+}
+
+void *
+arena_push(struct arena *arena, bool not_zeroed, size_t length) {
+    if (!arena) {
+        log_errorlf("%s: passing invalid arena", __func__);
+        return 0;
+    }
+#if DEV
     if ((uintptr_t)arena->data % arena->alignment != 0) log_warnlf("%s: poorly aligned arena", __func__);
 #endif
     if (arena->position >= arena->capacity) {
@@ -140,19 +139,15 @@ arena_push(struct arena *arena, bool not_zeroed, size_t length) {
 
 bool
 arena_pop(struct arena *arena, size_t length) {
-#if DEV
     if (!arena) {
         log_errorlf("%s: passing invalid arena", __func__);
         return false;
     }
-#endif
     length = arena_align(length, arena->alignment);
-#if DEV
     if (length > arena->position) {
         log_errorlf("%s: length '%zu' is greater than the arena position '%zu'", __func__, length, arena->position);
         return false;
     }
-#endif
     arena->position -= length;
     arena->position_prv = arena->position;
     return true;
@@ -160,12 +155,10 @@ arena_pop(struct arena *arena, size_t length) {
 
 bool
 arena_clear(struct arena *arena) {
-#if DEV
     if (!arena) {
         log_errorlf("%s: passing invalid arena", __func__);
         return false;
     }
-#endif
     arena->position_prv = 0;
     arena->position = 0;
     return true;

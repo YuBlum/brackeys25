@@ -7,7 +7,7 @@
 #define GLSL_VERSION "#version 330 core\n"
 #endif
 
-#define SH_DEFAULT_VERT str_view_make_from_lit( \
+#define SH_DEFAULT_VERT string_make( \
 GLSL_VERSION \
 "layout (location=0) in vec2  a_position;\n" \
 "layout (location=1) in vec2  a_texcoord;\n" \
@@ -32,7 +32,7 @@ GLSL_VERSION \
 "  v_blend = vec4(a_color, a_opacity);\n" \
 "}\n")
 
-#define SH_DEFAULT_FRAG str_view_make_from_lit( \
+#define SH_DEFAULT_FRAG string_make( \
 GLSL_VERSION \
 "precision mediump float;\n" \
 "in vec2 v_texcoord;\n" \
@@ -48,7 +48,7 @@ GLSL_VERSION \
 "}\n")
 
 #if DEV
-#define SH_CIRCLE_VERT str_view_make_from_lit( \
+#define SH_CIRCLE_VERT string_make( \
 GLSL_VERSION \
 "layout (location=0) in vec2  a_position;\n" \
 "layout (location=2) in vec2  a_coord;\n" \
@@ -67,7 +67,7 @@ GLSL_VERSION \
 "  v_coord = a_coord;\n" \
 "}\n")
 
-#define SH_CIRCLE_FRAG str_view_make_from_lit( \
+#define SH_CIRCLE_FRAG string_make( \
 GLSL_VERSION \
 "precision mediump float;\n" \
 "in vec4 v_blend;\n" \
