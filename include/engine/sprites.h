@@ -3,12 +3,16 @@
 
 enum sprite {
   SPR_PIXEL = 0,
+  SPR_AIM,
   SPR_TEST,
+  SPR_PLAYER_TEST,
   SPRITES_AMOUNT
 };
 
 enum animation {
-  ANIM_TEST_TEST = 0,
+  ANIM_AIM_PRESSED = 0,
+  ANIM_AIM_IDLE,
+  ANIM_TEST_TEST,
   ANIMATIONS_AMOUNT
 };
 

@@ -63,6 +63,11 @@ else
   echo "invalid target platform $1"
 fi
 
+if ! ./generate_systems.py; then
+  echo "updating the atlas failed"
+  exit 1
+fi
+
 if ! ./generate_atlas.py; then
   echo "updating the atlas failed"
   exit 1

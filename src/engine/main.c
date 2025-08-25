@@ -8,16 +8,21 @@
 #include "game/sound.h"
 #include "game/entity.h"
 
-static void
-test_render(struct entity *self) {
-    (void)self;
-    renderer_request_animation(ANIM_TEST_TEST, 0, V2S(0.0f));
-}
-
 void
 test_entities(void) {
-    auto test = entity_make(NO_FLAGS);
-    test->render = test_render;
+    auto player = entity_make(RENDER_SPRITE|MOVABLE|KEYBOARD_CONTROLLED|HAS_WEAPON);
+    auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
+
+    player->position     = V2S(0.0f);
+    player->size         = V2S(1.0f);
+    player->speed        = 8.0f;
+    player->weapon_angle = 0.0f;
+    player->sprite       = SPR_PLAYER_TEST;
+
+    cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;
+    cursor->state_animation[STM_PRESSED] = ANIM_AIM_PRESSED;
+    cursor->scale                        = V2S(1.0f);
+    cursor->depth                        = -INFINITY;
 }
 
 bool

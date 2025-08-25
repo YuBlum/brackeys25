@@ -1,0 +1,15 @@
+{
+  "flags" : [
+    "ALIVE",
+    "RENDER_COLLIDER",
+    "RENDER_SPRITE",
+    "RENDER_ANIMATION",
+    "MOVABLE",
+    "KEYBOARD_CONTROLLED",
+    "HAS_WEAPON",
+    "FOLLOW_CURSOR",
+    "STATE_MACHINE",
+    "LOOPABLE"
+  ]
+}
+

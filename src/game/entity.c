@@ -1,4 +1,5 @@
 #include "game/entity.h"
+#include "game/systems.h"
 
 #define ENTITY_CAP 1024
 
@@ -13,6 +14,8 @@ static struct entity_manager {
     uint32_t         free_list_amount;
 } g_entities;
 
+#include "game/entities_update_and_render_impl.h"
+
 void
 entity_add_flags(struct entity *entity, enum entity_flag flags) {
     entity->next_flags |= flags;
@@ -26,16 +29,6 @@ entity_remove_flags(struct entity *entity, enum entity_flag flags) {
 bool
 entity_get_flags(struct entity *entity, enum entity_flag flags) {
     return (entity->flags & flags) == flags;
-}
-
-static void
-entity_stub_update(struct entity *self, float dt) {
-    (void)self; (void)dt;
-}
-
-static void
-entity_stub_render(struct entity *self) {
-    (void)self;
 }
 
 struct entity *
@@ -53,10 +46,8 @@ entity_make(enum entity_flag flags) {
     g_entities.cached_index[index] = g_entities.cached_amount;
     g_entities.cached[g_entities.cached_amount++] = entity;
     *entity = (struct entity) { 0 };
-    entity->next_flags = flags|IS_ALIVE;
+    entity->next_flags = flags|ALIVE;
     entity->flags      = entity->next_flags;
-    entity->update     = entity_stub_update;
-    entity->render     = entity_stub_render;
     return entity;
 }
 
@@ -69,7 +60,7 @@ entity_destroy(struct entity *entity) {
         return;
     }
 #endif
-    if (!entity_get_flags(entity, IS_ALIVE)) return;
+    if (!entity_get_flags(entity, ALIVE)) return;
     entity->flags = NO_FLAGS;
     g_entities.free_list[g_entities.free_list_amount++] = index;
     g_entities.cached[g_entities.cached_index[index]] = g_entities.cached[--g_entities.cached_amount];
@@ -82,7 +73,7 @@ entity_get_data(struct entity_handle handle) {
         return &g_entities.stub;
     }
     auto e = &g_entities.data[handle.index];
-    if (!entity_get_flags(e, IS_ALIVE)) {
+    if (!entity_get_flags(e, ALIVE)) {
         g_entities.stub = (struct entity) { 0 };
         return &g_entities.stub;
     }
@@ -116,22 +107,6 @@ entity_manager_init(void) {
     g_entities.free_list_amount = 0;
     for (int64_t i = ENTITY_CAP - 1; i >= 0; i--) {
         g_entities.free_list[g_entities.free_list_amount++] = i;
-    }
-}
-
-void
-entity_manager_update(float dt) {
-    for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
-        auto e = g_entities.cached[i];
-        e->flags = e->next_flags;
-    }
-    for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
-        auto e = g_entities.cached[i];
-        e->update(e, dt);
-    }
-    for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
-        auto e = g_entities.cached[i];
-        e->render(e);
     }
 }
 

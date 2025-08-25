@@ -12,26 +12,38 @@ enum entity_state {
     STM_AMOUNT
 };
 
-enum entity_flag {
-    NO_FLAGS = 0,
-    IS_ALIVE = 1 << 0,
-};
+#include "game/entity_flags.h"
 
 struct entity_handle {
     uint32_t index;
     uint32_t generation;
 };
+
 /* bascially the generations starts to be valid at number one
  * because of this the 'ENTITY_HANDLE_NONE' would just be valid if the entity specifically at index 0
  * is at its 4294967296th generation, what is highly unlikely to happen */
 #define ENTITY_NONE ((struct entity_handle){0})
 
 struct entity {
-    void (*update)(struct entity *, float);
-    void (*render)(struct entity *);
     enum entity_flag flags;
     enum entity_flag next_flags;
     struct v2 position;
+    struct v2 next_position;
+    struct v2 direction;
+    struct v2 size;
+    struct v2 scale;
+    struct v2 origin;
+    enum sprite sprite;
+    float speed;
+    float angle;
+    float depth;
+    float weapon_angle;
+    enum animation animation;
+    enum animation state_animation[STM_AMOUNT];
+    float change_frame_timer;
+    uint32_t current_frame;
+    uint32_t previous_frame;
+    enum entity_state state;
 };
 
 struct entities {
