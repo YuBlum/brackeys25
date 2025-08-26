@@ -11,7 +11,8 @@
     "FOLLOW_CURSOR",
     "STATE_MACHINE",
     "LOOPABLE",
-    "WIGGLE"
+    "WIGGLE",
+    "ATTACKING"
   ]
 }
 

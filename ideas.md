@@ -48,17 +48,16 @@ On the shop you can level up your attributes with gold. The maximum an attribute
 Attribute price per attribute level:
 | Attrib. | Price |
 |---------|-------|
-| 0       | $20   |
-| 1       | $40   |
-| 2       | $80   |
-| 3       | $120  |
-| 4       | $240  |
-| 5       | $480  |
+| 1       | $20   |
+| 2       | $40   |
+| 3       | $80   |
+| 4       | $120  |
+| 5       | $240  |
 
 ## Popularity
 Your popularity between the people.
 
-You gain a certain amount of gold every `N` amount of sconds. The higher your popularity `N` becomes smaller:
+You gain a certain amount of gold every `N` amount of seconds. The higher your popularity `N` becomes smaller:
 | Pop. | N          |
 |------|------------|
 | 0    | 30 seconds |
@@ -86,7 +85,9 @@ Determines how effective your attacks are. The higher your strength your probabi
 ## Agility
 Your coordination and speed.
 
-Determines how effective fast your attacks are. The higher your agility the heaviness of weapons becomes less effective:
+Determines how fast your attacks and yourself are.
+
+The higher your agility the heaviness of weapons becomes less effective:
 | Agi. | Heaviness impact   |
 |------|--------------------|
 | 0    | 100%               |
@@ -95,6 +96,16 @@ Determines how effective fast your attacks are. The higher your agility the heav
 | 3    | 60%                |
 | 4    | 50%                |
 | 5    | 40%                |
+
+Also the higher your agility you become faster:
+| Agi. | Speed (units per second) |
+|------|--------------------------|
+| 0    | 5                        |
+| 1    | 6                        |
+| 2    | 7                        |
+| 3    | 8                        |
+| 4    | 9                        |
+| 5    | 10                       |
 
 ## Health
 Your physical health.
@@ -122,7 +133,7 @@ The attack tiers are:
 
 The damage per type of attack depends of your weapon.
 
-When a damage is received you have 0.1 seconds of invicibility.
+When a damage is received you have 0.1 seconds of invicibility. This also goes for the enemies.
 
 # Weapons
 Weapons have a minimum amount of [Strength](#Strength) required.
@@ -358,7 +369,6 @@ They also have a _rarity_ tier (Common, Rare, Legendary), this tier determines t
     - __Price:__ $160
     - __Rarity:__ Legendary
     - __Waves:__ 10
-
 
 # Enemies
  

@@ -12,6 +12,7 @@ with open("./include/game/entity_flags.h", "w") as f:
     flags_h += "#define __ENTITY_FLAGS_H__\n\n"
     flags_h += "enum entity_flag {\n"
     flags_h += "  NO_FLAGS = 0,\n"
+    flags_h += "  ANY_FLAG = 0,\n"
     for i, flag in enumerate(e["flags"]):
         flags_h += "  " + flag + (" = 1 << %d,\n" % i)
     flags_h += "};\n\n"
@@ -95,7 +96,8 @@ on_render_systems = []
 def add_system(systems_list, name):
     system = {
         "name": "",
-        "flags": []
+        "must_have_flags": [],
+        "must_not_have_flags": []
     }
     token = lexer_chop("some '"+name+"' is missing a '('", ['('])
     token = lexer_chop("some '"+name+"' is missing the system name")
@@ -105,14 +107,33 @@ def add_system(systems_list, name):
     system["name"] = token
     token = lexer_chop("missing a ',' after systems name on system '"+system["name"]+"'", [','])
     while True:
+        token = lexer_chop("system '"+system["name"]+"' missing ','")
+        if token == ',':
+            break
+        if token == ')':
+            print("missing 'must_not_have' field of system '"+system["name"]+"'")
+            exit(1)
+            break
+        if not token.isidentifier():
+            print("invalid 'must_have' flag name '"+token+"' on system '"+system["name"]+"'")
+            exit(1)
+        if token == '_':
+            continue
+        system["must_have_flags"].append(token)
+        token = lexer_chop("system '"+system["name"]+"' missing ','", [',','|'])
+        if token == ',':
+            break
+    while True:
         token = lexer_chop("system '"+system["name"]+"' missing ')'")
         if token == ')':
             break
         if not token.isidentifier():
-            print("invalid flag name '"+token+"'")
+            print("invalid 'must_not_have' flag name '"+token+"' on system '"+system["name"]+"'")
             exit(1)
-        system["flags"].append(token)
-        token = lexer_chop("system '"+system["name"]+"' missing ')'", [')',','])
+        if token == '_':
+            continue
+        system["must_not_have_flags"].append(token)
+        token = lexer_chop("system '"+system["name"]+"' missing ')'", [')','|'])
         if token == ')':
             break
     systems_list.append(system)
@@ -136,20 +157,42 @@ else:
         src += "  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {\n"
         src += "    auto e = g_entities.cached[i];\n"
         src += "    if (entity_get_flags(e, "
-        for idx, flag in enumerate(system["flags"]):
-            if idx > 0:
-                src += "|"
-            src += flag
-        src += ")) " + system["name"] + "(e, dt);\n  }\n"
+        if system["must_have_flags"]:
+            for idx, flag in enumerate(system["must_have_flags"]):
+                if idx > 0:
+                    src += "|"
+                src += flag
+            src += ")"
+            if system["must_not_have_flags"]:
+                src += " && "
+        if system["must_not_have_flags"]:
+            src += "!entity_get_flags(e, "
+            for idx, flag in enumerate(system["must_not_have_flags"]):
+                if idx > 0:
+                    src += "|"
+                src += flag
+            src += ")"
+        src += ") " + system["name"] + "(e, dt);\n  }\n"
 for system in on_render_systems:
     src += "  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {\n"
     src += "    auto e = g_entities.cached[i];\n"
     src += "    if (entity_get_flags(e, "
-    for idx, flag in enumerate(system["flags"]):
-        if idx > 0:
-            src += "|"
-        src += flag
-    src += ")) " + system["name"] + "(e);\n  }\n"
+    if system["must_have_flags"]:
+        for idx, flag in enumerate(system["must_have_flags"]):
+            if idx > 0:
+                src += "|"
+            src += flag
+        src += ")"
+        if system["must_not_have_flags"]:
+            src += " && "
+    if system["must_not_have_flags"]:
+        src += "!entity_get_flags(e, "
+        for idx, flag in enumerate(system["must_not_have_flags"]):
+            if idx > 0:
+                src += "|"
+            src += flag
+        src += ")"
+    src += ") " + system["name"] + "(e);\n  }\n"
 src += "}\n"
 
 with open("./include/game/entities_update_and_render_impl.h", "w") as f:

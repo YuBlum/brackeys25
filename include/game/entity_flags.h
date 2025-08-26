@@ -3,6 +3,7 @@
 
 enum entity_flag {
   NO_FLAGS = 0,
+  ANY_FLAG = 0,
   ALIVE = 1 << 0,
   RENDER_COLLIDER = 1 << 1,
   RENDER_SPRITE = 1 << 2,
@@ -15,6 +16,7 @@ enum entity_flag {
   STATE_MACHINE = 1 << 9,
   LOOPABLE = 1 << 10,
   WIGGLE = 1 << 11,
+  ATTACKING = 1 << 12,
 };
 
 #endif/*__ENTITY_FLAGS_H__*/

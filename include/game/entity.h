@@ -4,6 +4,7 @@
 #include "engine/core.h"
 #include "engine/math.h"
 #include "engine/renderer.h"
+#include "game/attributes.h"
 
 enum entity_state {
     STM_IDLE = 0,
@@ -45,7 +46,13 @@ struct entity {
     enum entity_state state;
     float wiggle_time;
     float looking_direction;
+    float attack_animation_timer;
+    float start_angle;
+    float end_angle;
+    float attack_anticipation;
     struct entity_handle weapon;
+    struct heaviness heaviness;
+    bool ending_attack;
 };
 
 struct entities {

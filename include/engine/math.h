@@ -9,10 +9,6 @@
 #define RAD2DEG (180.0f/PI)
 #define DEG2RAD (PI/180.0f)
 
-static inline float lerp(float a, float b, float t) { return a + t * (b - a); }
-static inline float lerp_smooth(float a, float b, float speed, float dt) { float t = 1.0f - pow(1.0f - speed, dt); return a + t * (b - a); }
-static inline float signf(float x) { return (x > 0.0f) - (x < 0.0f); }
-
 static inline float    f32_max(float    x, float    y) { return x > y ? x : y; }
 static inline int32_t  i32_max(int32_t  x, int32_t  y) { return x > y ? x : y; }
 static inline uint32_t u32_max(uint32_t x, uint32_t y) { return x > y ? x : y; }
@@ -37,6 +33,34 @@ static inline uint32_t u32_clamp(uint32_t x, uint32_t mn, uint32_t mx) { return 
     int32_t:  i32_clamp, \
     uint32_t: u32_clamp  \
 )(x, mn, mx)
+
+static inline float lerp(float a, float b, float t) { return a + t * (b - a); }
+static inline float lerp_smooth(float a, float b, float speed, float dt) { float t = 1.0f - pow(1.0f - speed, dt); return a + t * (b - a); }
+static inline float signf(float x) { return (x > 0.0f) - (x < 0.0f); }
+struct smoothstep_params {
+    float a;
+    float b;
+};
+static inline float _smoothstep(float x, struct smoothstep_params p) {
+    x = clamp(p.a == p.b ? 0.0f : (x-p.a)/(p.b-p.a), 0.0f, 1.0f);
+    return x * x * (3.0f-2.0f * x);
+}
+#define smoothstep(x, ...) _smoothstep(x, (struct smoothstep_params) { .a = 0.0f, .b = 1.0f })
+static inline float ease_in_quad(float t) { t = clamp(t, 0.0f, 1.0f); return t * t; }
+static inline float ease_in_cubic(float t) { t = clamp(t, 0.0f, 1.0f); return t * t * t; }
+static inline float ease_in_power(float t, float power) { t = clamp(t, 0.0f, 1.0f); return powf(t, power); }
+static inline float ease_in_out_cubic(float t) {
+    t = clamp(t, 0.0f, 1.0f);
+    return t < 0.5f
+        ? 4.0f * t * t * t
+        : 1.0f - powf(-2.0f * t + 2.0f, 3.0f) / 2.0f;
+}
+static inline float ease_out_back(float t) {
+    t = clamp(t, 0.0f, 1.0f);
+    float c1 = 1.70158f;
+    float c3 = c1 + 1.0f;
+    return 1.0f + c3 * powf(t - 1.0f, 3) + c1 * powf(t - 1.0f, 2);
+}
 
 #define randf() ((float)rand()/(float)RAND_MAX)
 #define randf_from_to(X, Y) (randf() * ((Y) - (X)) + (X))

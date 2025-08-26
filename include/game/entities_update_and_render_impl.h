@@ -14,6 +14,10 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
+    if (entity_get_flags(e, MOVABLE|ATTACKING)) stop_moving_on_attack(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
     if (entity_get_flags(e, MOVABLE)) get_next_position(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
@@ -30,7 +34,11 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_get_flags(e, HAS_WEAPON)) update_weapon(e, dt);
+    if (entity_get_flags(e, HAS_WEAPON) && !entity_get_flags(e, ATTACKING)) update_weapon(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_get_flags(e, HAS_WEAPON|ATTACKING)) update_attack(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];

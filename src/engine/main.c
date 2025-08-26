@@ -21,7 +21,9 @@ test_entities(void) {
     player->looking_direction = 1.0f;
     player->weapon            = entity_get_handle(sword);
 
-    sword->sprite = SPR_REGULAR_SWORD;
+    sword->sprite              = SPR_REGULAR_SWORD;
+    sword->heaviness.value     = 2;
+    sword->attack_anticipation = 3.0f;
 
     //auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
     //cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;

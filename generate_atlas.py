@@ -63,7 +63,7 @@ for meta, name in metas:
                 "first-frame": tag["from"]
             })
         in_animation_info[name] = (len(meta["frames"]), meta["frames"][0]["frame"]["w"])
-        print(name, in_animation_info[name])
+        #print(name, in_animation_info[name])
 #print(animations)
 
 def next_pow2(x):
