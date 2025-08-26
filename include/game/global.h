@@ -2,7 +2,7 @@
 #define __GLOBAL_H__
 
 struct global {
-    int _;
+    bool show_colliders;
 };
 
 extern struct global global;

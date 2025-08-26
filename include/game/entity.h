@@ -6,13 +6,6 @@
 #include "engine/renderer.h"
 #include "game/attributes.h"
 
-enum entity_state {
-    STM_IDLE = 0,
-    STM_WALK,
-    STM_PRESSED = STM_WALK,
-    STM_AMOUNT
-};
-
 #include "game/entity_flags.h"
 
 struct entity_handle {
@@ -20,8 +13,10 @@ struct entity_handle {
     uint32_t generation;
 };
 
-/* bascially the generations starts to be valid at number one
- * because of this the 'ENTITY_HANDLE_NONE' would just be valid if the entity specifically at index 0
+static inline bool entity_handle_cmp(struct entity_handle a, struct entity_handle b) { return a.index == b.index && a.generation == b.generation; }
+
+/* basically the generations starts to be valid at number one
+ * because of this the 'ENTITY_NONE' handle would just be valid if the entity specifically at index 0
  * is at its 4294967296th generation, what is highly unlikely to happen */
 #define ENTITY_NONE ((struct entity_handle){0})
 
@@ -31,28 +26,25 @@ struct entity {
     struct v2 position;
     struct v2 next_position;
     struct v2 direction;
-    struct v2 size;
+    struct v2 collider_size;
+    struct v2 collider_offset;
+    struct v2 hitbox_size;
     struct v2 scale;
     struct v2 origin;
     struct v2 offset;
-    enum sprite sprite;
     float speed;
     float walk_speed;
     float recoil_speed;
     float angle;
     float depth;
-    enum animation animation;
-    enum animation state_animation[STM_AMOUNT];
-    float change_frame_timer;
-    uint32_t current_frame;
-    uint32_t previous_frame;
-    enum entity_state state;
+    float hit_points;
     float wiggle_time;
     float looking_direction;
     float attack_animation_timer;
     float start_angle;
     float end_angle;
     float attack_anticipation;
+    enum sprite sprite;
     struct entity_handle weapon;
     struct heaviness heaviness;
     bool ending_attack;

@@ -2,17 +2,17 @@
   "flags" : [
     "ALIVE",
     "RENDER_COLLIDER",
+    "RENDER_HITBOX",
     "RENDER_SPRITE",
-    "RENDER_ANIMATION",
     "MOVABLE",
     "KEYBOARD_CONTROLLED",
     "HAS_WEAPON",
     "WEAPON",
-    "FOLLOW_CURSOR",
-    "STATE_MACHINE",
-    "LOOPABLE",
     "WIGGLE",
-    "ATTACKING"
+    "ATTACKING",
+    "HITABLE",
+    "DEPTH_BY_BOTTOM",
+    "KNOCKBACK"
   ]
 }
 

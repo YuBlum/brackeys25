@@ -6,10 +6,6 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_get_flags(e, FOLLOW_CURSOR)) follow_cursor(e, dt);
-  }
-  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
-    auto e = g_entities.cached[i];
     if (entity_get_flags(e, KEYBOARD_CONTROLLED) && !entity_get_flags(e, ATTACKING)) keyboard_control(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
@@ -30,6 +26,10 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
+    if (entity_get_flags(e, KNOCKBACK)) knockback(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
     if (entity_get_flags(e, HAS_WEAPON) && !entity_get_flags(e, ATTACKING)) update_weapon(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
@@ -42,19 +42,7 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_get_flags(e, FOLLOW_CURSOR|STATE_MACHINE)) update_cursor_state(e, dt);
-  }
-  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
-    auto e = g_entities.cached[i];
-    if (entity_get_flags(e, RENDER_ANIMATION|LOOPABLE)) loop_animation(e, dt);
-  }
-  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
-    auto e = g_entities.cached[i];
-    if (entity_get_flags(e, RENDER_ANIMATION)) update_animation(e, dt);
-  }
-  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
-    auto e = g_entities.cached[i];
-    if (entity_get_flags(e, RENDER_ANIMATION)) render_animation(e);
+    if (entity_get_flags(e, DEPTH_BY_BOTTOM)) update_depth_by_bottom(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
@@ -63,5 +51,9 @@ entity_manager_update(float dt) {
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
     if (entity_get_flags(e, RENDER_COLLIDER)) render_collider(e);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_get_flags(e, RENDER_HITBOX)) render_hitbox(e);
   }
 }
