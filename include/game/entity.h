@@ -37,7 +37,6 @@ struct entity {
     float speed;
     float angle;
     float depth;
-    float weapon_angle;
     enum animation animation;
     enum animation state_animation[STM_AMOUNT];
     float change_frame_timer;
@@ -46,6 +45,7 @@ struct entity {
     enum entity_state state;
     float wiggle_time;
     float looking_direction;
+    struct entity_handle weapon;
 };
 
 struct entities {

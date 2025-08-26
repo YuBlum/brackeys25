@@ -5,7 +5,11 @@
 #include "engine/arena.h"
 
 enum key : uint8_t {
-    KEY_LEFT = 0,
+    KEY_ATTACK_LEFT = 0,
+    KEY_ATTACK_RIGHT,
+    KEY_ATTACK_UP,
+    KEY_ATTACK_DOWN,
+    KEY_LEFT,
     KEY_RIGHT,
     KEY_UP,
     KEY_DOWN,

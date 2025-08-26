@@ -25,13 +25,17 @@ key_callback(GLFWwindow* _window, int key, int _scancode, int action, int _mods)
     (void)_window; (void)_scancode; (void) _mods;
     if (action != GLFW_PRESS && action != GLFW_RELEASE) return;
     switch (key) {
-        case GLFW_KEY_ESCAPE: g_window.keys[KEY_EXIT]      = action == GLFW_PRESS; break;
-        case GLFW_KEY_D:      g_window.keys[KEY_RIGHT]     = action == GLFW_PRESS; break;
-        case GLFW_KEY_A:      g_window.keys[KEY_LEFT]      = action == GLFW_PRESS; break;
-        case GLFW_KEY_W:      g_window.keys[KEY_UP]        = action == GLFW_PRESS; break;
-        case GLFW_KEY_S:      g_window.keys[KEY_DOWN]      = action == GLFW_PRESS; break;
-        case GLFW_KEY_SPACE:  g_window.keys[KEY_INTERACT]  = action == GLFW_PRESS; break;
-        case GLFW_KEY_F1:     g_window.keys[KEY_DEBUG0]    = action == GLFW_PRESS; break;
+        case GLFW_KEY_ESCAPE: g_window.keys[KEY_EXIT]         = action == GLFW_PRESS; break;
+        case GLFW_KEY_D:      g_window.keys[KEY_ATTACK_RIGHT] = action == GLFW_PRESS; break;
+        case GLFW_KEY_A:      g_window.keys[KEY_ATTACK_LEFT]  = action == GLFW_PRESS; break;
+        case GLFW_KEY_W:      g_window.keys[KEY_ATTACK_UP]    = action == GLFW_PRESS; break;
+        case GLFW_KEY_S:      g_window.keys[KEY_ATTACK_DOWN]  = action == GLFW_PRESS; break;
+        case GLFW_KEY_RIGHT:  g_window.keys[KEY_RIGHT]        = action == GLFW_PRESS; break;
+        case GLFW_KEY_LEFT:   g_window.keys[KEY_LEFT]         = action == GLFW_PRESS; break;
+        case GLFW_KEY_UP:     g_window.keys[KEY_UP]           = action == GLFW_PRESS; break;
+        case GLFW_KEY_DOWN:   g_window.keys[KEY_DOWN]         = action == GLFW_PRESS; break;
+        case GLFW_KEY_SPACE:  g_window.keys[KEY_INTERACT]     = action == GLFW_PRESS; break;
+        case GLFW_KEY_F1:     g_window.keys[KEY_DEBUG0]       = action == GLFW_PRESS; break;
     }
 }
 

@@ -7,6 +7,7 @@
     "MOVABLE",
     "KEYBOARD_CONTROLLED",
     "HAS_WEAPON",
+    "WEAPON",
     "FOLLOW_CURSOR",
     "STATE_MACHINE",
     "LOOPABLE",

@@ -8,6 +8,7 @@ enum sprite {
     SPR_FONT,
     SPR_TEST,
     SPR_PLAYER_TEST,
+    SPR_REGULAR_SWORD,
     SPRITES_AMOUNT
 };
 

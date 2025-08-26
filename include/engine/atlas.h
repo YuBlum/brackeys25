@@ -24,6 +24,7 @@ static const struct v2 g_atlas_sprite_positions[SPRITES_AMOUNT] = {
     { 97.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
     { 908.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
     { 950.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 970.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
 };
 
 static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {
@@ -33,6 +34,7 @@ static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {
     { 807.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
     { 32.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
     { 16.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
+    { 7.0f * ATLAS_PIXEL_W, 14.0f * ATLAS_PIXEL_H },
 };
 
 static const struct v2 g_atlas_sprite_half_sizes[SPRITES_AMOUNT] = {
@@ -42,6 +44,7 @@ static const struct v2 g_atlas_sprite_half_sizes[SPRITES_AMOUNT] = {
     { 403.5f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
     { 16.0f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
     { 8.0f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
+    { 3.5f * UNIT_ONE_PIXEL, 7.0f * UNIT_ONE_PIXEL },
 };
 
 static const float g_atlas_animation_durations_aim_pressed[3] = {

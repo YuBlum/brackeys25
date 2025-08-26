@@ -10,10 +10,11 @@ enum entity_flag {
   MOVABLE = 1 << 4,
   KEYBOARD_CONTROLLED = 1 << 5,
   HAS_WEAPON = 1 << 6,
-  FOLLOW_CURSOR = 1 << 7,
-  STATE_MACHINE = 1 << 8,
-  LOOPABLE = 1 << 9,
-  WIGGLE = 1 << 10,
+  WEAPON = 1 << 7,
+  FOLLOW_CURSOR = 1 << 8,
+  STATE_MACHINE = 1 << 9,
+  LOOPABLE = 1 << 10,
+  WIGGLE = 1 << 11,
 };
 
 #endif/*__ENTITY_FLAGS_H__*/

@@ -11,16 +11,19 @@
 void
 test_entities(void) {
     auto player = entity_make(RENDER_SPRITE|MOVABLE|KEYBOARD_CONTROLLED|HAS_WEAPON|WIGGLE);
-    //auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
+    auto sword  = entity_make(RENDER_SPRITE|WEAPON);
 
     player->position          = V2S(0.0f);
     player->size              = V2S(1.0f);
     player->speed             = 5.0f;
-    player->weapon_angle      = 0.0f;
     player->sprite            = SPR_PLAYER;
     player->scale             = V2S(1.0f);
     player->looking_direction = 1.0f;
+    player->weapon            = entity_get_handle(sword);
 
+    sword->sprite = SPR_REGULAR_SWORD;
+
+    //auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
     //cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;
     //cursor->state_animation[STM_PRESSED] = ANIM_AIM_PRESSED;
     //cursor->scale                        = V2S(1.0f);

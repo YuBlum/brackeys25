@@ -31,14 +31,14 @@ ON_UPDATE_SYSTEM(move, MOVABLE) {
 
 ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE, WIGGLE) {
     if (self->direction.x == 0.0f && self->direction.y == 0.0f) {
-        constexpr float WIGGLE_STOP_SPEED = 0.9999f;
+        constexpr auto WIGGLE_STOP_SPEED = 0.9999f;
         self->wiggle_time = 0.0f;
         self->angle = lerp_smooth(self->angle, 0.0f, WIGGLE_STOP_SPEED, dt);
         self->scale = v2_lerp_smooth(self->scale, V2S(1.0f), WIGGLE_STOP_SPEED, dt);
     } else {
-        constexpr float WIGGLE_FREQUENCY = 2.0f;
-        constexpr float WIGGLE_ANGLE     = (float)PI/6.0;
-        constexpr float WIGGLE_SCALE     = 0.1f;
+        constexpr auto WIGGLE_FREQUENCY = 2.0f;
+        constexpr auto WIGGLE_ANGLE     = (float)PI/6.0;
+        constexpr auto WIGGLE_SCALE     = 0.1f;
         self->wiggle_time += dt;
         float t = self->wiggle_time * WIGGLE_FREQUENCY * PI * 2;
         self->angle = sinf(t) * WIGGLE_ANGLE;
@@ -52,6 +52,17 @@ ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE, RENDER_SPRITE) {
     if (self->direction.x != 0.0f) {
         self->looking_direction = self->direction.x > 0.0f ? 1.0f : -1.0f;
     }
+}
+
+ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON) {
+    (void)dt;
+    constexpr auto WEAPON_SLOPE = (float)PI/6.0;
+    auto weapon = entity_get_data(self->weapon);
+    weapon->position          = v2_add(self->position, V2(-0.4f * self->looking_direction, 0.0f));
+    weapon->angle             = self->angle - WEAPON_SLOPE * self->looking_direction;
+    weapon->looking_direction = self->looking_direction;
+    weapon->scale             = self->scale;
+    weapon->depth             = self->depth+0.1f;
 }
 
 ON_UPDATE_SYSTEM(update_cursor_state, FOLLOW_CURSOR, STATE_MACHINE) {
@@ -85,7 +96,6 @@ ON_UPDATE_SYSTEM(update_animation, RENDER_ANIMATION) {
   if (self->current_frame > animation->frames_amount-1) self->current_frame = animation->frames_amount-1;
 }
 
-
 ON_RENDER_SYSTEM(render_animation, RENDER_ANIMATION) {
   renderer_request_animation(
     self->animation,
@@ -102,8 +112,10 @@ ON_RENDER_SYSTEM(render_sprite, RENDER_SPRITE) {
     renderer_request_sprite(
         self->sprite,
         self->position,
-        .angle = self->angle,
-        .scale = { self->scale.x * self->looking_direction, self->scale.y }
+        .angle   = self->angle,
+        .origin  = { self->origin.x * self->looking_direction, self->origin.y },
+        .scale   = { self->scale .x * self->looking_direction, self->scale .y },
+        .depth   = self->depth
     );
 }
 
