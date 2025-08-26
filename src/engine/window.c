@@ -45,7 +45,7 @@ button_callback(GLFWwindow* _window, int button, int action, int _mods) {
     if (action != GLFW_PRESS && action != GLFW_RELEASE) return;
     switch (button) {
         case GLFW_MOUSE_BUTTON_LEFT:  g_window.btns[BTN_LEFT]  = action == GLFW_PRESS; break;
-        case GLFW_MOUSE_BUTTON_RIGHT: g_window.btns[KEY_RIGHT] = action == GLFW_PRESS; break;
+        case GLFW_MOUSE_BUTTON_RIGHT: g_window.btns[BTN_RIGHT] = action == GLFW_PRESS; break;
     }
 }
 

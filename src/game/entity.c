@@ -27,8 +27,13 @@ entity_remove_flags(struct entity *entity, enum entity_flag flags) {
 }
 
 bool
-entity_get_flags(struct entity *entity, enum entity_flag flags) {
+entity_has_flags(struct entity *entity, enum entity_flag flags) {
     return (entity->flags & flags) == flags;
+}
+
+bool
+entity_has_one_of_flags(struct entity *entity, enum entity_flag flags) {
+    return (entity->flags & flags) != 0;
 }
 
 struct entity *
@@ -60,7 +65,7 @@ entity_destroy(struct entity *entity) {
         return;
     }
 #endif
-    if (!entity_get_flags(entity, ALIVE)) return;
+    if (!entity_has_flags(entity, ALIVE)) return;
     entity->flags = NO_FLAGS;
     g_entities.free_list[g_entities.free_list_amount++] = index;
     g_entities.cached[g_entities.cached_index[index]] = g_entities.cached[--g_entities.cached_amount];
@@ -73,7 +78,7 @@ entity_get_data(struct entity_handle handle) {
         return &g_entities.stub;
     }
     auto e = &g_entities.data[handle.index];
-    if (!entity_get_flags(e, ALIVE)) {
+    if (!entity_has_flags(e, ALIVE)) {
         g_entities.stub = (struct entity) { 0 };
         return &g_entities.stub;
     }

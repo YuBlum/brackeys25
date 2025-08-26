@@ -8,13 +8,33 @@
 #define ON_UPDATE_SYSTEM(system, must_have, must_not_have) void system(struct entity *self, float dt)
 #define ON_RENDER_SYSTEM(system, must_have, must_not_have) void system(struct entity *self)
 
-ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, ATTACKING) {
+ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, ATTACKING|KNOCKBACK) {
     (void)dt;
     self->speed     = self->walk_speed;
     self->direction = v2_unit(V2(
         window_is_key_down(KEY_RIGHT) - window_is_key_down(KEY_LEFT),
         window_is_key_down(KEY_UP)    - window_is_key_down(KEY_DOWN)
     ));
+}
+
+ON_UPDATE_SYSTEM(check_to_follow_target, CHECK_TO_FOLLOW, FOLLOW) {
+    (void)dt;
+    auto target = entity_get_data(self->target);
+    if (check_rect_circle(target->position, target->collider_size, self->position, self->view_radius)) {
+        entity_add_flags(self, FOLLOW);
+    }
+}
+
+ON_UPDATE_SYSTEM(follow_target, FOLLOW, KNOCKBACK) {
+    (void)dt;
+    auto target = entity_get_data(self->target);
+    if (check_rect_circle(target->position, target->collider_size, self->position, self->following_radius)) {
+        self->speed     = self->walk_speed;
+        self->direction = v2_direction(self->position, target->position);
+    } else {
+        self->speed = 0.0f;
+        entity_remove_flags(self, FOLLOW);
+    }
 }
 
 ON_UPDATE_SYSTEM(get_next_position, MOVABLE, _) {
@@ -26,7 +46,7 @@ ON_UPDATE_SYSTEM(move, MOVABLE, _) {
     self->position = self->next_position;
 }
 
-ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, ATTACKING) {
+ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, ATTACKING|KNOCKBACK) {
     if (self->direction.x == 0.0f && self->direction.y == 0.0f) {
         constexpr auto WIGGLE_STOP_SPEED = 0.9999f;
         self->wiggle_time = 0.0f;
@@ -44,7 +64,7 @@ ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, ATTACKING) {
     }
 }
 
-ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE|RENDER_SPRITE, ATTACKING) {
+ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE|RENDER_SPRITE, ATTACKING|KNOCKBACK) {
     (void)dt;
     if (self->direction.x != 0.0f) {
         self->looking_direction = self->direction.x > 0.0f ? 1.0f : -1.0f;
@@ -53,7 +73,7 @@ ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE|RENDER_SPRITE, ATTACKI
 
 ON_UPDATE_SYSTEM(knockback, KNOCKBACK, _) {
     self->speed = lerp_smooth(self->speed, 0.0f, 0.999f, dt);
-    if (self->speed <= 0.0f) {
+    if (self->speed <= 0.5f) {
         self->speed = 0.0f;
         entity_remove_flags(self, KNOCKBACK);
     }
@@ -126,16 +146,16 @@ ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|ATTACKING, _) {
     weapon->angle = lerp(weapon->start_angle, weapon->end_angle, t);
     self->scale.x = lerp(1.0f, 1.2f, t);
     self->scale.y = lerp(1.0f, 0.8f, t);
-    if (entity_get_flags(weapon, ATTACKING)) {
+    if (entity_has_flags(weapon, ATTACKING)) {
         auto cached = entity_manager_get_cached();
         auto self_handle = entity_get_handle(self);
         for (uint32_t i = 0; i < cached.amount; i++) {
             auto other = cached.data[i];
             auto other_handle = entity_get_handle(other);
-            if (entity_handle_cmp(other_handle, self_handle) || entity_handle_cmp(other_handle, self->weapon)) continue;
-            if (check_rect_rect(weapon->position, weapon->collider_size, other->position, other->collider_size)) {
+            if (!entity_has_flags(other, HITABLE) || entity_handle_compare(other_handle, self_handle)) continue;
+            if (check_rect_rect(weapon->position, weapon->collider_size, other->position, other->hitbox_size)) {
                 entity_remove_flags(weapon, ATTACKING|RENDER_COLLIDER);
-                other->direction = v2_from_angle(v2_to_angle2(self->position, other->position));
+                other->direction = v2_direction(self->position, other->position);
                 other->speed     = weapon->recoil_speed;
                 entity_add_flags(other, KNOCKBACK);
                 break;
@@ -161,7 +181,7 @@ ON_RENDER_SYSTEM(render_sprite, RENDER_SPRITE, _) {
 }
 
 ON_RENDER_SYSTEM(render_collider, RENDER_COLLIDER, _) {
-    if (!global.show_colliders) return;
+    if (!global.show_debug) return;
     renderer_request_rect(
         v2_add(self->position, self->collider_offset),
         self->collider_size,
@@ -172,12 +192,28 @@ ON_RENDER_SYSTEM(render_collider, RENDER_COLLIDER, _) {
 }
 
 ON_RENDER_SYSTEM(render_hitbox, RENDER_HITBOX, _) {
-    if (!global.show_colliders) return;
+    if (!global.show_debug) return;
     renderer_request_rect(
         self->position,
         self->hitbox_size,
         RED,
         0.4f,
         -100.0f
+    );
+}
+
+ON_RENDER_SYSTEM(render_view_radius, RENDER_VIEW_RADIUS, _) {
+    if (!global.show_debug) return;
+    renderer_request_circle(
+        self->position,
+        self->following_radius,
+        BLUE,
+        0.2f
+    );
+    renderer_request_circle(
+        self->position,
+        self->view_radius,
+        YELLOW,
+        0.4f
     );
 }

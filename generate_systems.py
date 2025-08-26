@@ -156,7 +156,7 @@ else:
     for system in on_update_systems:
         src += "  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {\n"
         src += "    auto e = g_entities.cached[i];\n"
-        src += "    if (entity_get_flags(e, "
+        src += "    if (entity_has_flags(e, "
         if system["must_have_flags"]:
             for idx, flag in enumerate(system["must_have_flags"]):
                 if idx > 0:
@@ -166,7 +166,7 @@ else:
             if system["must_not_have_flags"]:
                 src += " && "
         if system["must_not_have_flags"]:
-            src += "!entity_get_flags(e, "
+            src += "!entity_has_one_of_flags(e, "
             for idx, flag in enumerate(system["must_not_have_flags"]):
                 if idx > 0:
                     src += "|"
@@ -176,7 +176,7 @@ else:
 for system in on_render_systems:
     src += "  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {\n"
     src += "    auto e = g_entities.cached[i];\n"
-    src += "    if (entity_get_flags(e, "
+    src += "    if (entity_has_flags(e, "
     if system["must_have_flags"]:
         for idx, flag in enumerate(system["must_have_flags"]):
             if idx > 0:
@@ -186,7 +186,7 @@ for system in on_render_systems:
         if system["must_not_have_flags"]:
             src += " && "
     if system["must_not_have_flags"]:
-        src += "!entity_get_flags(e, "
+        src += "!entity_has_one_of_flags(e, "
         for idx, flag in enumerate(system["must_not_have_flags"]):
             if idx > 0:
                 src += "|"

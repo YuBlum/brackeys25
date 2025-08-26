@@ -16,6 +16,7 @@ struct color { float r, g, b; };
 #define DARK_RED   RGB(0.5f, 0.0f, 0.0f)
 #define DARK_GREEN RGB(0.0f, 0.5f, 0.0f)
 #define DARK_BLUE  RGB(0.0f, 0.0f, 0.5f)
+#define YELLOW     RGB(1.0f, 1.0f, 0.5f)
 #define BLACK RGB(0.0f, 0.0f, 0.0f)
 #define CORNFLOWER_BLUE RGB(0.392f, 0.584f, 0.929f)
 

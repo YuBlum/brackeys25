@@ -4,6 +4,7 @@
     "RENDER_COLLIDER",
     "RENDER_HITBOX",
     "RENDER_SPRITE",
+    "RENDER_VIEW_RADIUS",
     "MOVABLE",
     "KEYBOARD_CONTROLLED",
     "HAS_WEAPON",
@@ -12,7 +13,9 @@
     "ATTACKING",
     "HITABLE",
     "DEPTH_BY_BOTTOM",
-    "KNOCKBACK"
+    "KNOCKBACK",
+    "CHECK_TO_FOLLOW",
+    "FOLLOW"
   ]
 }
 

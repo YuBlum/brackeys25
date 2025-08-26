@@ -12,13 +12,13 @@ void
 test_entities(void) {
     auto player = entity_make(RENDER_SPRITE|RENDER_HITBOX|MOVABLE|KEYBOARD_CONTROLLED|HAS_WEAPON|WIGGLE|HITABLE|DEPTH_BY_BOTTOM);
     auto sword  = entity_make(RENDER_SPRITE|WEAPON);
-    auto slime  = entity_make(RENDER_SPRITE|RENDER_HITBOX|MOVABLE|HITABLE|DEPTH_BY_BOTTOM);
+    auto slime  = entity_make(RENDER_SPRITE|RENDER_HITBOX|RENDER_VIEW_RADIUS|MOVABLE|HITABLE|DEPTH_BY_BOTTOM|CHECK_TO_FOLLOW);
 
+    player->sprite            = SPR_PLAYER;
     player->position          = V2S(0.0f);
     player->collider_size     = V2S(1.0f);
     player->walk_speed        = 5.0f;
     player->recoil_speed      = 4.0f;
-    player->sprite            = SPR_PLAYER;
     player->scale             = V2S(1.0f);
     player->looking_direction = 1.0f;
     player->weapon            = entity_get_handle(sword);
@@ -32,10 +32,15 @@ test_entities(void) {
     sword->collider_size       = V2(1.0f, 1.0f);
 
     slime->sprite            = SPR_SLIME;
+    slime->position          = V2S(-4.0f);
     slime->scale             = V2S(1.0f);
     slime->looking_direction = 1.0f;
     slime->collider_size     = V2(1.0f, 0.5f);
     slime->hitbox_size       = V2S(1.0f);
+    slime->view_radius       = 4.0f;
+    slime->following_radius  = 6.0f;
+    slime->target            = entity_get_handle(player);
+    slime->walk_speed        = 4.0f;
 
     //auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
     //cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;

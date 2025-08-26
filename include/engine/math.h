@@ -92,6 +92,7 @@ static inline float v2_dist(struct v2 v0, struct v2 v1) { return v2_mag(v2_sub(v
 static inline float v2_to_angle(struct v2 v) { return atan2f(-v.y, v.x); }
 static inline float v2_to_angle2(struct v2 v0, struct v2 v1) { return atan2f(v0.y - v1.y, v1.x - v0.x); }
 static inline struct v2 v2_from_angle(float a) { return V2(cosf(a), -sinf(a)); }
+static inline struct v2 v2_direction(struct v2 v0, struct v2 v1) { return v2_from_angle(v2_to_angle2(v0, v1)); }
 
 struct v2u { uint32_t x, y; };
 #define V2U(x, y) ((struct v2u) {x, y})

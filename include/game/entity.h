@@ -13,7 +13,7 @@ struct entity_handle {
     uint32_t generation;
 };
 
-static inline bool entity_handle_cmp(struct entity_handle a, struct entity_handle b) { return a.index == b.index && a.generation == b.generation; }
+static inline bool entity_handle_compare(struct entity_handle a, struct entity_handle b) { return a.index==b.index && a.generation==b.generation; }
 
 /* basically the generations starts to be valid at number one
  * because of this the 'ENTITY_NONE' handle would just be valid if the entity specifically at index 0
@@ -44,7 +44,10 @@ struct entity {
     float start_angle;
     float end_angle;
     float attack_anticipation;
+    float view_radius;
+    float following_radius;
     enum sprite sprite;
+    struct entity_handle target;
     struct entity_handle weapon;
     struct heaviness heaviness;
     bool ending_attack;
@@ -57,7 +60,8 @@ struct entities {
 
 void entity_add_flags(struct entity *entity, enum entity_flag flags);
 void entity_remove_flags(struct entity *entity, enum entity_flag flags);
-bool entity_get_flags(struct entity *entity, enum entity_flag flags);
+bool entity_has_flags(struct entity *entity, enum entity_flag flags);
+bool entity_has_one_of_flags(struct entity *entity, enum entity_flag flags);
 struct entity *entity_make(enum entity_flag flags);
 void entity_destroy(struct entity *entity);
 struct entity *entity_get_data(struct entity_handle handle);
