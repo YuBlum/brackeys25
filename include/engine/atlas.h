@@ -25,6 +25,7 @@ static const struct v2 g_atlas_sprite_positions[SPRITES_AMOUNT] = {
     { 908.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
     { 950.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
     { 970.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 990.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
 };
 
 static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {
@@ -33,6 +34,7 @@ static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {
     { 42.0f * ATLAS_PIXEL_W, 7.0f * ATLAS_PIXEL_H },
     { 807.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
     { 32.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
+    { 16.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
     { 16.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
     { 7.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
 };
@@ -43,6 +45,7 @@ static const struct v2 g_atlas_sprite_half_sizes[SPRITES_AMOUNT] = {
     { 21.0f * UNIT_ONE_PIXEL, 3.5f * UNIT_ONE_PIXEL },
     { 403.5f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
     { 16.0f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
+    { 8.0f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
     { 8.0f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
     { 3.5f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
 };

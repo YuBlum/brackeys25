@@ -10,11 +10,7 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_get_flags(e, KEYBOARD_CONTROLLED)) keyboard_control(e, dt);
-  }
-  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
-    auto e = g_entities.cached[i];
-    if (entity_get_flags(e, MOVABLE|ATTACKING)) stop_moving_on_attack(e, dt);
+    if (entity_get_flags(e, KEYBOARD_CONTROLLED) && !entity_get_flags(e, ATTACKING)) keyboard_control(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
@@ -26,15 +22,19 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_get_flags(e, MOVABLE|WIGGLE)) wiggle_animation(e, dt);
+    if (entity_get_flags(e, MOVABLE|WIGGLE) && !entity_get_flags(e, ATTACKING)) wiggle_animation(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_get_flags(e, MOVABLE|RENDER_SPRITE)) change_sprite_looking_direction(e, dt);
+    if (entity_get_flags(e, MOVABLE|RENDER_SPRITE) && !entity_get_flags(e, ATTACKING)) change_sprite_looking_direction(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
     if (entity_get_flags(e, HAS_WEAPON) && !entity_get_flags(e, ATTACKING)) update_weapon(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_get_flags(e, HAS_WEAPON)) update_weapon_position(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];

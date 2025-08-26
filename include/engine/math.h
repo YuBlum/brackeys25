@@ -49,13 +49,15 @@ static inline float _smoothstep(float x, struct smoothstep_params p) {
 static inline float ease_in_quad(float t) { t = clamp(t, 0.0f, 1.0f); return t * t; }
 static inline float ease_in_cubic(float t) { t = clamp(t, 0.0f, 1.0f); return t * t * t; }
 static inline float ease_in_power(float t, float power) { t = clamp(t, 0.0f, 1.0f); return powf(t, power); }
-static inline float ease_in_out_cubic(float t) {
+static inline float
+ease_in_out_cubic(float t) {
     t = clamp(t, 0.0f, 1.0f);
     return t < 0.5f
         ? 4.0f * t * t * t
         : 1.0f - powf(-2.0f * t + 2.0f, 3.0f) / 2.0f;
 }
-static inline float ease_out_back(float t) {
+static inline float
+ease_out_back(float t) {
     t = clamp(t, 0.0f, 1.0f);
     float c1 = 1.70158f;
     float c3 = c1 + 1.0f;

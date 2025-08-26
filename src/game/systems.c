@@ -12,17 +12,13 @@ ON_UPDATE_SYSTEM(follow_cursor, FOLLOW_CURSOR, _) {
   self->position = window_get_cursor_position();
 }
 
-ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, _) {
+ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, ATTACKING) {
     (void)dt;
+    self->speed     = self->walk_speed;
     self->direction = v2_unit(V2(
         window_is_key_down(KEY_RIGHT) - window_is_key_down(KEY_LEFT),
         window_is_key_down(KEY_UP)    - window_is_key_down(KEY_DOWN)
     ));
-}
-
-ON_UPDATE_SYSTEM(stop_moving_on_attack, MOVABLE|ATTACKING, _) {
-    (void)dt;
-    self->direction = V2S(0.0f);
 }
 
 ON_UPDATE_SYSTEM(get_next_position, MOVABLE, _) {
@@ -34,7 +30,7 @@ ON_UPDATE_SYSTEM(move, MOVABLE, _) {
     self->position = self->next_position;
 }
 
-ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, _) {
+ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, ATTACKING) {
     if (self->direction.x == 0.0f && self->direction.y == 0.0f) {
         constexpr auto WIGGLE_STOP_SPEED = 0.9999f;
         self->wiggle_time = 0.0f;
@@ -52,7 +48,7 @@ ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, _) {
     }
 }
 
-ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE|RENDER_SPRITE, _) {
+ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE|RENDER_SPRITE, ATTACKING) {
     (void)dt;
     if (self->direction.x != 0.0f) {
         self->looking_direction = self->direction.x > 0.0f ? 1.0f : -1.0f;
@@ -63,7 +59,7 @@ ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, ATTACKING) {
     (void)dt;
     constexpr auto WEAPON_SLOPE = (float)PI/6.0;
     auto weapon = entity_get_data(self->weapon);
-    weapon->position          = v2_add(self->position, V2(-0.4f * self->looking_direction, 0.0f));
+    weapon->offset            = V2(-0.4f * self->looking_direction, 0.0f);
     weapon->angle             = self->angle - WEAPON_SLOPE * self->looking_direction;
     weapon->looking_direction = self->looking_direction;
     weapon->scale             = self->scale;
@@ -77,21 +73,29 @@ ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, ATTACKING) {
         if (!attack_y) {
             weapon->start_angle = 0;
             weapon->end_angle   = (2*PI/3) * attack_x;
-            weapon->position    = v2_add(self->position, V2(0.5f * attack_x, -0.25f));
+            weapon->offset      = V2(0.5f * attack_x, -0.25f);
             weapon->origin      = V2(0.0f, -0.5f);
             weapon->scale.x     = attack_x;
         } else {
             weapon->start_angle = attack_y * weapon->looking_direction > 0.0f ? -PI/2 : 3*PI/2;
             weapon->end_angle   = PI/2;
-            weapon->position    = v2_add(self->position, V2(0.0f, 0.5f * attack_y));
+            weapon->offset      = V2(0.0f, 0.5f * attack_y);
             weapon->origin      = V2(0.0f, -0.5f);
             weapon->scale.y     = weapon->looking_direction;
         }
         weapon->depth             = self->depth-0.1f;
         weapon->angle             = weapon->start_angle;
         weapon->looking_direction = 1.0f;
+        self->direction = v2_unit(V2(-attack_x, -attack_y));
+        self->speed     = weapon->recoil_speed;
         entity_add_flags(self, ATTACKING);
     }
+}
+
+ON_UPDATE_SYSTEM(update_weapon_position, HAS_WEAPON, _) {
+    (void)dt;
+    auto weapon = entity_get_data(self->weapon);
+    weapon->position = v2_add(self->position, weapon->offset);
 }
 
 ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|ATTACKING, _) {
@@ -114,6 +118,7 @@ ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|ATTACKING, _) {
     weapon->angle = lerp(weapon->start_angle, weapon->end_angle, t);
     self->scale.x = lerp(1.0f, 1.2f, t);
     self->scale.y = lerp(1.0f, 0.8f, t);
+    self->speed = lerp_smooth(self->speed, 0.0f, 0.999f, dt);
 }
 
 ON_UPDATE_SYSTEM(update_cursor_state, FOLLOW_CURSOR|STATE_MACHINE, _) {

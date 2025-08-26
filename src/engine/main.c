@@ -15,15 +15,16 @@ test_entities(void) {
 
     player->position          = V2S(0.0f);
     player->size              = V2S(1.0f);
-    player->speed             = 5.0f;
+    player->walk_speed        = 5.0f;
     player->sprite            = SPR_PLAYER;
     player->scale             = V2S(1.0f);
     player->looking_direction = 1.0f;
     player->weapon            = entity_get_handle(sword);
 
     sword->sprite              = SPR_REGULAR_SWORD;
-    sword->heaviness.value     = 2;
+    sword->heaviness.value     = 0;
     sword->attack_anticipation = 3.0f;
+    sword->recoil_speed        = 5.0f;
 
     //auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
     //cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;

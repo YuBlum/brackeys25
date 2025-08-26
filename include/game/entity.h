@@ -34,8 +34,11 @@ struct entity {
     struct v2 size;
     struct v2 scale;
     struct v2 origin;
+    struct v2 offset;
     enum sprite sprite;
     float speed;
+    float walk_speed;
+    float recoil_speed;
     float angle;
     float depth;
     enum animation animation;
