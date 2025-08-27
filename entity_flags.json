@@ -12,13 +12,16 @@
     "WEAPON_ATTACK",
     "WIGGLE",
     "HITABLE",
+    "WAS_HIT",
     "DEPTH_BY_BOTTOM",
     "KNOCKBACK",
     "CHECK_TO_FOLLOW",
     "FOLLOW",
     "SLIME_ATTACK",
     "INVINCIBLE",
-    "SQUISHY"
+    "SQUISHY",
+    "COLLIDE_WITH_WALL",
+    "CAMERA_FOCUS"
   ]
 }
 

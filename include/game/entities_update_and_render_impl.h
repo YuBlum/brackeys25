@@ -30,7 +30,15 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
+    if (entity_has_flags(e, MOVABLE|COLLIDE_WITH_WALL)) collide_with_map_walls(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
     if (entity_has_flags(e, MOVABLE)) move(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_has_flags(e, CAMERA_FOCUS)) camera_follow(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
@@ -59,6 +67,10 @@ entity_manager_update(float dt) {
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
     if (entity_has_flags(e, HAS_WEAPON|WEAPON_ATTACK)) update_weapon_when_attacking(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_has_flags(e, WAS_HIT)) receive_damage(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];

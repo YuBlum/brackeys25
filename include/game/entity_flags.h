@@ -16,13 +16,16 @@ enum entity_flag {
   WEAPON_ATTACK = 1 << 9,
   WIGGLE = 1 << 10,
   HITABLE = 1 << 11,
-  DEPTH_BY_BOTTOM = 1 << 12,
-  KNOCKBACK = 1 << 13,
-  CHECK_TO_FOLLOW = 1 << 14,
-  FOLLOW = 1 << 15,
-  SLIME_ATTACK = 1 << 16,
-  INVINCIBLE = 1 << 17,
-  SQUISHY = 1 << 18,
+  WAS_HIT = 1 << 12,
+  DEPTH_BY_BOTTOM = 1 << 13,
+  KNOCKBACK = 1 << 14,
+  CHECK_TO_FOLLOW = 1 << 15,
+  FOLLOW = 1 << 16,
+  SLIME_ATTACK = 1 << 17,
+  INVINCIBLE = 1 << 18,
+  SQUISHY = 1 << 19,
+  COLLIDE_WITH_WALL = 1 << 20,
+  CAMERA_FOCUS = 1 << 21,
 };
 
 #endif/*__ENTITY_FLAGS_H__*/

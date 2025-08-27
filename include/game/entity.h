@@ -23,6 +23,7 @@ static inline bool entity_handle_compare(struct entity_handle a, struct entity_h
 struct entity {
     enum entity_flag flags;
     enum entity_flag next_flags;
+    enum sprite sprite;
     struct v2 position;
     struct v2 next_position;
     struct v2 direction;
@@ -37,7 +38,6 @@ struct entity {
     float recoil_speed;
     float angle;
     float depth;
-    float hit_points;
     float wiggle_timer;
     float squishy_timer;
     float looking_direction;
@@ -51,10 +51,21 @@ struct entity {
     float invincible_timer;
     float invincible_max;
     float opacity;
-    enum sprite sprite;
     struct entity_handle target;
     struct entity_handle weapon;
-    struct heaviness heaviness;
+    struct popularity popularity;
+    struct strength   strength;
+    struct agility    agility;
+    struct health     health;
+    struct heaviness  heaviness;
+    uint8_t hit_points;
+    uint8_t bad_damage_min;
+    uint8_t bad_damage_max;
+    uint8_t mid_damage_min;
+    uint8_t mid_damage_max;
+    uint8_t good_damage_min;
+    uint8_t good_damage_max;
+    uint8_t received_damage;
     bool ending_attack;
 };
 

@@ -9,7 +9,8 @@
 
 struct color { float r, g, b; };
 #define RGB(r, g, b) ((struct color) { r, g, b })
-#define WHITE RGB(1.0f, 1.0f, 1.0f)
+#define GRAY(v) RGB(v, v, v)
+#define WHITE GRAY(1.0f)
 #define RED   RGB(1.0f, 0.0f, 0.0f)
 #define GREEN RGB(0.0f, 1.0f, 0.0f)
 #define BLUE  RGB(0.0f, 0.0f, 1.0f)
@@ -17,7 +18,7 @@ struct color { float r, g, b; };
 #define DARK_GREEN RGB(0.0f, 0.5f, 0.0f)
 #define DARK_BLUE  RGB(0.0f, 0.0f, 0.5f)
 #define YELLOW     RGB(1.0f, 1.0f, 0.5f)
-#define BLACK RGB(0.0f, 0.0f, 0.0f)
+#define BLACK GRAY(0.0f)
 #define CORNFLOWER_BLUE RGB(0.392f, 0.584f, 0.929f)
 
 bool renderer_make(void);
