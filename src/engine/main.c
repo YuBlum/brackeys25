@@ -10,9 +10,31 @@
 
 void
 test_entities(void) {
-    auto player = entity_make(RENDER_SPRITE|RENDER_HITBOX|MOVABLE|KEYBOARD_CONTROLLED|HAS_WEAPON|WIGGLE|HITABLE|DEPTH_BY_BOTTOM);
-    auto sword  = entity_make(RENDER_SPRITE|WEAPON);
-    auto slime  = entity_make(RENDER_SPRITE|RENDER_HITBOX|RENDER_VIEW_RADIUS|MOVABLE|HITABLE|DEPTH_BY_BOTTOM|CHECK_TO_FOLLOW);
+    auto player = entity_make(
+        0
+        | RENDER_SPRITE
+        | RENDER_HITBOX
+        | MOVABLE
+        | KEYBOARD_CONTROLLED
+        | HAS_WEAPON
+        | WIGGLE
+        | HITABLE
+        | DEPTH_BY_BOTTOM
+    );
+    auto sword  = entity_make(
+        0
+        | RENDER_SPRITE
+    );
+    auto slime  = entity_make(
+        0
+        | RENDER_SPRITE
+        | RENDER_HITBOX
+        | RENDER_VIEW_RADIUS
+        | MOVABLE
+        | AI_CONTROLLED
+        | DEPTH_BY_BOTTOM
+        | CHECK_TO_FOLLOW
+    );
 
     player->sprite            = SPR_PLAYER;
     player->position          = V2S(0.0f);

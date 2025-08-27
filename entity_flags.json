@@ -7,15 +7,17 @@
     "RENDER_VIEW_RADIUS",
     "MOVABLE",
     "KEYBOARD_CONTROLLED",
+    "AI_CONTROLLED",
     "HAS_WEAPON",
-    "WEAPON",
+    "WEAPON_ATTACK",
     "WIGGLE",
-    "ATTACKING",
     "HITABLE",
     "DEPTH_BY_BOTTOM",
     "KNOCKBACK",
     "CHECK_TO_FOLLOW",
-    "FOLLOW"
+    "FOLLOW",
+    "SLIME_ATTACK",
+    "INVINCIBLE"
   ]
 }
 

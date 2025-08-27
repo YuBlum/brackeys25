@@ -88,7 +88,7 @@ static inline float v2_mag(struct v2 v) { return sqrt(v.x*v.x + v.y*v.y); }
 static inline struct v2 v2_unit(struct v2 v) { float mag = sqrt(v.x*v.x + v.y*v.y); return mag == 0.0f ? V2S(0.0f) : V2(v.x/mag, v.y/mag); }
 static inline struct v2 v2_lerp(struct v2 a, struct v2 b, float t) { return V2(lerp(a.x, b.x, t), lerp(a.y, b.y, t)); }
 static inline struct v2 v2_lerp_smooth(struct v2 a, struct v2 b, float speed, float dt) { return V2(lerp_smooth(a.x, b.x, speed, dt), lerp_smooth(a.y, b.y, speed, dt)); }
-static inline float v2_dist(struct v2 v0, struct v2 v1) { return v2_mag(v2_sub(v1, v0)); }
+static inline float v2_distance(struct v2 v0, struct v2 v1) { return v2_mag(v2_sub(v1, v0)); }
 static inline float v2_to_angle(struct v2 v) { return atan2f(-v.y, v.x); }
 static inline float v2_to_angle2(struct v2 v0, struct v2 v1) { return atan2f(v0.y - v1.y, v1.x - v0.x); }
 static inline struct v2 v2_from_angle(float a) { return V2(cosf(a), -sinf(a)); }

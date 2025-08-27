@@ -6,15 +6,19 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, KEYBOARD_CONTROLLED) && !entity_has_one_of_flags(e, ATTACKING|KNOCKBACK)) keyboard_control(e, dt);
+    if (entity_has_flags(e, KEYBOARD_CONTROLLED) && !entity_has_one_of_flags(e, WEAPON_ATTACK|KNOCKBACK)) keyboard_control(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, CHECK_TO_FOLLOW) && !entity_has_one_of_flags(e, FOLLOW)) check_to_follow_target(e, dt);
+    if (entity_has_flags(e, CHECK_TO_FOLLOW) && !entity_has_one_of_flags(e, FOLLOW|SLIME_ATTACK)) check_to_follow_target(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
     if (entity_has_flags(e, FOLLOW) && !entity_has_one_of_flags(e, KNOCKBACK)) follow_target(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_has_flags(e, SLIME_ATTACK)) slime_attack(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
@@ -26,11 +30,11 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, MOVABLE|WIGGLE) && !entity_has_one_of_flags(e, ATTACKING|KNOCKBACK)) wiggle_animation(e, dt);
+    if (entity_has_flags(e, MOVABLE|WIGGLE) && !entity_has_one_of_flags(e, WEAPON_ATTACK|KNOCKBACK)) wiggle_animation(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, MOVABLE|RENDER_SPRITE) && !entity_has_one_of_flags(e, ATTACKING|KNOCKBACK)) change_sprite_looking_direction(e, dt);
+    if (entity_has_flags(e, MOVABLE|RENDER_SPRITE) && !entity_has_one_of_flags(e, KNOCKBACK)) change_sprite_looking_direction(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
@@ -38,7 +42,7 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, HAS_WEAPON) && !entity_has_one_of_flags(e, ATTACKING)) update_weapon(e, dt);
+    if (entity_has_flags(e, HAS_WEAPON) && !entity_has_one_of_flags(e, WEAPON_ATTACK)) update_weapon(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
@@ -46,7 +50,7 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, HAS_WEAPON|ATTACKING)) update_attack(e, dt);
+    if (entity_has_flags(e, HAS_WEAPON|WEAPON_ATTACK)) update_attack(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];

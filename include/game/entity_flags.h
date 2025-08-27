@@ -11,15 +11,17 @@ enum entity_flag {
   RENDER_VIEW_RADIUS = 1 << 4,
   MOVABLE = 1 << 5,
   KEYBOARD_CONTROLLED = 1 << 6,
-  HAS_WEAPON = 1 << 7,
-  WEAPON = 1 << 8,
-  WIGGLE = 1 << 9,
-  ATTACKING = 1 << 10,
+  AI_CONTROLLED = 1 << 7,
+  HAS_WEAPON = 1 << 8,
+  WEAPON_ATTACK = 1 << 9,
+  WIGGLE = 1 << 10,
   HITABLE = 1 << 11,
   DEPTH_BY_BOTTOM = 1 << 12,
   KNOCKBACK = 1 << 13,
   CHECK_TO_FOLLOW = 1 << 14,
   FOLLOW = 1 << 15,
+  SLIME_ATTACK = 1 << 16,
+  INVINCIBLE = 1 << 17,
 };
 
 #endif/*__ENTITY_FLAGS_H__*/

@@ -8,7 +8,7 @@
 #define ON_UPDATE_SYSTEM(system, must_have, must_not_have) void system(struct entity *self, float dt)
 #define ON_RENDER_SYSTEM(system, must_have, must_not_have) void system(struct entity *self)
 
-ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, ATTACKING|KNOCKBACK) {
+ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, WEAPON_ATTACK|KNOCKBACK) {
     (void)dt;
     self->speed     = self->walk_speed;
     self->direction = v2_unit(V2(
@@ -17,7 +17,7 @@ ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, ATTACKING|KNOCKBACK) {
     ));
 }
 
-ON_UPDATE_SYSTEM(check_to_follow_target, CHECK_TO_FOLLOW, FOLLOW) {
+ON_UPDATE_SYSTEM(check_to_follow_target, CHECK_TO_FOLLOW, FOLLOW|SLIME_ATTACK) {
     (void)dt;
     auto target = entity_get_data(self->target);
     if (check_rect_circle(target->position, target->collider_size, self->position, self->view_radius)) {
@@ -28,13 +28,38 @@ ON_UPDATE_SYSTEM(check_to_follow_target, CHECK_TO_FOLLOW, FOLLOW) {
 ON_UPDATE_SYSTEM(follow_target, FOLLOW, KNOCKBACK) {
     (void)dt;
     auto target = entity_get_data(self->target);
-    if (check_rect_circle(target->position, target->collider_size, self->position, self->following_radius)) {
-        self->speed     = self->walk_speed;
-        self->direction = v2_direction(self->position, target->position);
-    } else {
+    if (!check_rect_circle(target->position, target->collider_size, self->position, self->following_radius)) {
         self->speed = 0.0f;
         entity_remove_flags(self, FOLLOW);
+        return;
     }
+    constexpr auto ATTACK_DIST = 1.5f;
+    self->direction = V2S(0.0f);
+    if (entity_has_flags(self, INVINCIBLE)) return;
+    if (v2_distance(self->position, target->position) <= ATTACK_DIST) {
+        entity_add_flags(self, SLIME_ATTACK);
+        entity_remove_flags(self, FOLLOW);
+        self->speed          = 10.0f; // attack speed
+        self->wait_to_attack = 0.1f; // in seconds
+    } else {
+        self->speed     = self->walk_speed;
+        self->direction = v2_direction(self->position, target->position);
+    }
+}
+
+ON_UPDATE_SYSTEM(slime_attack, SLIME_ATTACK, _) {
+    (void)dt;
+    auto target = entity_get_data(self->target);
+    self->wait_to_attack -= dt;
+    if (self->wait_to_attack > 0.0f) return;
+    if (self->direction.x == 0.0f && self->direction.y == 0.0f) self->direction = v2_direction(self->position, target->position);
+    if (entity_has_flags(self, KNOCKBACK)) {
+        entity_remove_flags(self, HITABLE|SLIME_ATTACK);
+        return;
+    }
+    self->speed = lerp_smooth(self->speed, 0.0f, 0.9f, dt);
+    if (self->speed <= 6.0f) entity_add_flags(self, HITABLE);
+    if (self->speed <= 0.5f) entity_remove_flags(self, SLIME_ATTACK|HITABLE);
 }
 
 ON_UPDATE_SYSTEM(get_next_position, MOVABLE, _) {
@@ -46,7 +71,7 @@ ON_UPDATE_SYSTEM(move, MOVABLE, _) {
     self->position = self->next_position;
 }
 
-ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, ATTACKING|KNOCKBACK) {
+ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, WEAPON_ATTACK|KNOCKBACK) {
     if (self->direction.x == 0.0f && self->direction.y == 0.0f) {
         constexpr auto WIGGLE_STOP_SPEED = 0.9999f;
         self->wiggle_time = 0.0f;
@@ -64,7 +89,7 @@ ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, ATTACKING|KNOCKBACK) {
     }
 }
 
-ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE|RENDER_SPRITE, ATTACKING|KNOCKBACK) {
+ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE|RENDER_SPRITE, KNOCKBACK) {
     (void)dt;
     if (self->direction.x != 0.0f) {
         self->looking_direction = self->direction.x > 0.0f ? 1.0f : -1.0f;
@@ -79,7 +104,7 @@ ON_UPDATE_SYSTEM(knockback, KNOCKBACK, _) {
     }
 }
 
-ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, ATTACKING) {
+ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, WEAPON_ATTACK) {
     (void)dt;
     constexpr auto WEAPON_SLOPE = (float)PI/6.0;
     auto weapon = entity_get_data(self->weapon);
@@ -114,8 +139,8 @@ ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, ATTACKING) {
         weapon->looking_direction = 1.0f;
         self->direction = v2_unit(V2(-attack_x, -attack_y));
         self->speed     = self->recoil_speed;
-        entity_add_flags(self, ATTACKING|KNOCKBACK);
-        entity_add_flags(weapon, ATTACKING|RENDER_COLLIDER);
+        entity_add_flags(self, WEAPON_ATTACK|KNOCKBACK);
+        entity_add_flags(weapon, WEAPON_ATTACK|RENDER_COLLIDER);
     }
 }
 
@@ -125,15 +150,15 @@ ON_UPDATE_SYSTEM(update_weapon_position, HAS_WEAPON, _) {
     weapon->position = v2_add(self->position, weapon->offset);
 }
 
-ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|ATTACKING, _) {
+ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|WEAPON_ATTACK, _) {
     auto weapon = entity_get_data(self->weapon);
     auto heaviness = g_speed_by_heaviness[weapon->heaviness.value];
     if (self->ending_attack) {
         self->attack_animation_timer += dt;
         if (self->attack_animation_timer >= heaviness) {
             self->attack_animation_timer = heaviness;
-            entity_remove_flags(self, ATTACKING);
-            entity_remove_flags(weapon, ATTACKING|RENDER_COLLIDER);
+            entity_remove_flags(self, WEAPON_ATTACK);
+            entity_remove_flags(weapon, WEAPON_ATTACK|RENDER_COLLIDER);
         }
     } else {
         self->attack_animation_timer -= dt;
@@ -146,7 +171,7 @@ ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|ATTACKING, _) {
     weapon->angle = lerp(weapon->start_angle, weapon->end_angle, t);
     self->scale.x = lerp(1.0f, 1.2f, t);
     self->scale.y = lerp(1.0f, 0.8f, t);
-    if (entity_has_flags(weapon, ATTACKING)) {
+    if (entity_has_flags(weapon, WEAPON_ATTACK)) {
         auto cached = entity_manager_get_cached();
         auto self_handle = entity_get_handle(self);
         for (uint32_t i = 0; i < cached.amount; i++) {
@@ -154,7 +179,7 @@ ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|ATTACKING, _) {
             auto other_handle = entity_get_handle(other);
             if (!entity_has_flags(other, HITABLE) || entity_handle_compare(other_handle, self_handle)) continue;
             if (check_rect_rect(weapon->position, weapon->collider_size, other->position, other->hitbox_size)) {
-                entity_remove_flags(weapon, ATTACKING|RENDER_COLLIDER);
+                entity_remove_flags(weapon, WEAPON_ATTACK|RENDER_COLLIDER);
                 other->direction = v2_direction(self->position, other->position);
                 other->speed     = weapon->recoil_speed;
                 entity_add_flags(other, KNOCKBACK);
@@ -196,7 +221,7 @@ ON_RENDER_SYSTEM(render_hitbox, RENDER_HITBOX, _) {
     renderer_request_rect(
         self->position,
         self->hitbox_size,
-        RED,
+        entity_has_flags(self, HITABLE) ? BLUE : RED,
         0.4f,
         -100.0f
     );

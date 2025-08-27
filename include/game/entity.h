@@ -46,6 +46,7 @@ struct entity {
     float attack_anticipation;
     float view_radius;
     float following_radius;
+    float wait_to_attack;
     enum sprite sprite;
     struct entity_handle target;
     struct entity_handle weapon;
