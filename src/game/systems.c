@@ -58,8 +58,29 @@ ON_UPDATE_SYSTEM(slime_attack, SLIME_ATTACK, _) {
         return;
     }
     self->speed = lerp_smooth(self->speed, 0.0f, 0.9f, dt);
-    if (self->speed <= 6.0f) entity_add_flags(self, HITABLE);
-    if (self->speed <= 0.5f) entity_remove_flags(self, SLIME_ATTACK|HITABLE);
+    if (self->speed <= 6.0f) {
+        entity_add_flags(self, HITABLE);
+    }
+    else if (check_rect_rect(self->position, self->collider_size, target->position, target->hitbox_size) &&
+            !entity_has_one_of_flags(target, KNOCKBACK|INVINCIBLE)) {
+        entity_add_flags(target, KNOCKBACK|INVINCIBLE);
+        target->direction        = self->direction;
+        target->speed            = self->recoil_speed;
+        target->invincible_timer = target->invincible_max;
+    }
+    if (self->speed <= 0.5f) {
+        self->speed = 0.0f;
+        entity_remove_flags(self, SLIME_ATTACK|HITABLE);
+    }
+}
+
+ON_UPDATE_SYSTEM(update_invincibility, INVINCIBLE, _) {
+    self->invincible_timer -= dt;
+    self->opacity = !self->opacity;
+    if (self->invincible_timer <= 0.0f) {
+        entity_remove_flags(self, INVINCIBLE);
+        self->opacity = 1.0f;
+    }
 }
 
 ON_UPDATE_SYSTEM(get_next_position, MOVABLE, _) {
@@ -74,19 +95,28 @@ ON_UPDATE_SYSTEM(move, MOVABLE, _) {
 ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, WEAPON_ATTACK|KNOCKBACK) {
     if (self->direction.x == 0.0f && self->direction.y == 0.0f) {
         constexpr auto WIGGLE_STOP_SPEED = 0.9999f;
-        self->wiggle_time = 0.0f;
+        self->wiggle_timer = 0.0f;
         self->angle = lerp_smooth(self->angle, 0.0f, WIGGLE_STOP_SPEED, dt);
         self->scale = v2_lerp_smooth(self->scale, V2S(1.0f), WIGGLE_STOP_SPEED, dt);
     } else {
         constexpr auto WIGGLE_FREQUENCY = 2.0f;
         constexpr auto WIGGLE_ANGLE     = (float)PI/6.0;
         constexpr auto WIGGLE_SCALE     = 0.1f;
-        self->wiggle_time += dt;
-        float t = self->wiggle_time * WIGGLE_FREQUENCY * PI * 2;
+        self->wiggle_timer += dt;
+        float t = self->wiggle_timer * WIGGLE_FREQUENCY * PI * 2;
         self->angle = sinf(t) * WIGGLE_ANGLE;
         self->scale.x = 1.0f + sinf(t) * WIGGLE_SCALE;
         self->scale.y = 1.0f + cosf(t) * WIGGLE_SCALE;
     }
+}
+
+ON_UPDATE_SYSTEM(squishy_animation, FOLLOW|SQUISHY, KNOCKBACK) {
+    constexpr auto SQUISHY_FREQUENCY = 2.0f;
+    constexpr auto SQUISHY_SCALE     = 0.25f;
+    self->squishy_timer += dt;
+    float t = self->squishy_timer * SQUISHY_FREQUENCY * PI * 2;
+    self->scale.x = 1.0f + sinf(t) * SQUISHY_SCALE;
+    self->scale.y = 1.0f - sinf(t) * SQUISHY_SCALE;
 }
 
 ON_UPDATE_SYSTEM(change_sprite_looking_direction, MOVABLE|RENDER_SPRITE, KNOCKBACK) {
@@ -104,7 +134,7 @@ ON_UPDATE_SYSTEM(knockback, KNOCKBACK, _) {
     }
 }
 
-ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, WEAPON_ATTACK) {
+ON_UPDATE_SYSTEM(update_weapon_when_not_attacking, HAS_WEAPON, WEAPON_ATTACK) {
     (void)dt;
     constexpr auto WEAPON_SLOPE = (float)PI/6.0;
     auto weapon = entity_get_data(self->weapon);
@@ -116,7 +146,7 @@ ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, WEAPON_ATTACK) {
     weapon->origin            = V2S(0.0f);
     int8_t attack_x = window_is_key_down(KEY_ATTACK_RIGHT) - window_is_key_down(KEY_ATTACK_LEFT);
     int8_t attack_y = window_is_key_down(KEY_ATTACK_UP)    - window_is_key_down(KEY_ATTACK_DOWN);
-    if (attack_x || attack_y) {
+    if ((attack_x || attack_y) && !entity_has_flags(self, KNOCKBACK)) {
         self->attack_animation_timer = g_speed_by_heaviness[weapon->heaviness.value];
         self->ending_attack          = false;
         if (!attack_y) {
@@ -126,6 +156,7 @@ ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, WEAPON_ATTACK) {
             weapon->origin          = V2(0.0f, -0.5f);
             weapon->scale.x         = attack_x;
             weapon->collider_offset = V2(0.25f*attack_x, 0.25f);
+            weapon->collider_size   = V2(1.25f, 1.0f);
         } else {
             weapon->start_angle = (attack_y * weapon->looking_direction) > 0.0f ? -PI/2 : 3*PI/2;
             weapon->end_angle   = PI/2;
@@ -133,6 +164,8 @@ ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, WEAPON_ATTACK) {
             weapon->origin      = V2(0.0f, -0.5f);
             weapon->scale.y     = weapon->looking_direction;
             weapon->collider_offset = V2(0.5f*attack_x, 0.25f*attack_y);
+            weapon->collider_size   = V2(1.0f, 1.0f);
+            weapon->collider_size   = V2(1.0f, 1.25f);
         }
         weapon->depth             = self->depth-0.1f;
         weapon->angle             = weapon->start_angle;
@@ -144,13 +177,14 @@ ON_UPDATE_SYSTEM(update_weapon, HAS_WEAPON, WEAPON_ATTACK) {
     }
 }
 
-ON_UPDATE_SYSTEM(update_weapon_position, HAS_WEAPON, _) {
+ON_UPDATE_SYSTEM(update_weapon_general, HAS_WEAPON, _) {
     (void)dt;
     auto weapon = entity_get_data(self->weapon);
     weapon->position = v2_add(self->position, weapon->offset);
+    weapon->opacity  = self->opacity;
 }
 
-ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|WEAPON_ATTACK, _) {
+ON_UPDATE_SYSTEM(update_weapon_when_attacking, HAS_WEAPON|WEAPON_ATTACK, _) {
     auto weapon = entity_get_data(self->weapon);
     auto heaviness = g_speed_by_heaviness[weapon->heaviness.value];
     if (self->ending_attack) {
@@ -180,9 +214,10 @@ ON_UPDATE_SYSTEM(update_attack, HAS_WEAPON|WEAPON_ATTACK, _) {
             if (!entity_has_flags(other, HITABLE) || entity_handle_compare(other_handle, self_handle)) continue;
             if (check_rect_rect(weapon->position, weapon->collider_size, other->position, other->hitbox_size)) {
                 entity_remove_flags(weapon, WEAPON_ATTACK|RENDER_COLLIDER);
-                other->direction = v2_direction(self->position, other->position);
-                other->speed     = weapon->recoil_speed;
-                entity_add_flags(other, KNOCKBACK);
+                other->direction        = v2_direction(self->position, other->position);
+                other->speed            = weapon->recoil_speed;
+                other->invincible_timer = other->invincible_max;
+                entity_add_flags(other, KNOCKBACK|INVINCIBLE);
                 break;
             }
         }
@@ -201,7 +236,8 @@ ON_RENDER_SYSTEM(render_sprite, RENDER_SPRITE, _) {
         .angle   = self->angle,
         .origin  = { self->origin.x * self->looking_direction, self->origin.y },
         .scale   = { self->scale .x * self->looking_direction, self->scale .y },
-        .depth   = self->depth
+        .depth   = self->depth,
+        .opacity = self->opacity
     );
 }
 

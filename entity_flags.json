@@ -17,7 +17,8 @@
     "CHECK_TO_FOLLOW",
     "FOLLOW",
     "SLIME_ATTACK",
-    "INVINCIBLE"
+    "INVINCIBLE",
+    "SQUISHY"
   ]
 }
 

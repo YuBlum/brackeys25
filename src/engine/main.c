@@ -34,6 +34,7 @@ test_entities(void) {
         | AI_CONTROLLED
         | DEPTH_BY_BOTTOM
         | CHECK_TO_FOLLOW
+        | SQUISHY
     );
 
     player->sprite            = SPR_PLAYER;
@@ -46,12 +47,13 @@ test_entities(void) {
     player->weapon            = entity_get_handle(sword);
     player->hit_points        = 10.0f;
     player->hitbox_size       = V2(0.5f, 0.75f);
+    player->invincible_max    = 0.3f;
+    player->opacity           = 1.0f;
 
     sword->sprite              = SPR_REGULAR_SWORD;
     sword->heaviness.value     = 0;
     sword->attack_anticipation = 3.0f;
     sword->recoil_speed        = 10.0f;
-    sword->collider_size       = V2(1.0f, 1.0f);
 
     slime->sprite            = SPR_SLIME;
     slime->position          = V2S(-4.0f);
@@ -63,6 +65,9 @@ test_entities(void) {
     slime->following_radius  = 6.0f;
     slime->target            = entity_get_handle(player);
     slime->walk_speed        = 4.0f;
+    slime->recoil_speed      = 6.0f;
+    slime->opacity           = 1.0f;
+    slime->invincible_max    = 0.3f;
 
     //auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
     //cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;

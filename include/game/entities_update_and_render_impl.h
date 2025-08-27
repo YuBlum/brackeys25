@@ -22,6 +22,10 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
+    if (entity_has_flags(e, INVINCIBLE)) update_invincibility(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
     if (entity_has_flags(e, MOVABLE)) get_next_position(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
@@ -34,6 +38,10 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
+    if (entity_has_flags(e, FOLLOW|SQUISHY) && !entity_has_one_of_flags(e, KNOCKBACK)) squishy_animation(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
     if (entity_has_flags(e, MOVABLE|RENDER_SPRITE) && !entity_has_one_of_flags(e, KNOCKBACK)) change_sprite_looking_direction(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
@@ -42,15 +50,15 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, HAS_WEAPON) && !entity_has_one_of_flags(e, WEAPON_ATTACK)) update_weapon(e, dt);
+    if (entity_has_flags(e, HAS_WEAPON) && !entity_has_one_of_flags(e, WEAPON_ATTACK)) update_weapon_when_not_attacking(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, HAS_WEAPON)) update_weapon_position(e, dt);
+    if (entity_has_flags(e, HAS_WEAPON)) update_weapon_general(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, HAS_WEAPON|WEAPON_ATTACK)) update_attack(e, dt);
+    if (entity_has_flags(e, HAS_WEAPON|WEAPON_ATTACK)) update_weapon_when_attacking(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];

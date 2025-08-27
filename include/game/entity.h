@@ -38,7 +38,8 @@ struct entity {
     float angle;
     float depth;
     float hit_points;
-    float wiggle_time;
+    float wiggle_timer;
+    float squishy_timer;
     float looking_direction;
     float attack_animation_timer;
     float start_angle;
@@ -47,6 +48,9 @@ struct entity {
     float view_radius;
     float following_radius;
     float wait_to_attack;
+    float invincible_timer;
+    float invincible_max;
+    float opacity;
     enum sprite sprite;
     struct entity_handle target;
     struct entity_handle weapon;

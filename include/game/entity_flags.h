@@ -22,6 +22,7 @@ enum entity_flag {
   FOLLOW = 1 << 15,
   SLIME_ATTACK = 1 << 16,
   INVINCIBLE = 1 << 17,
+  SQUISHY = 1 << 18,
 };
 
 #endif/*__ENTITY_FLAGS_H__*/
