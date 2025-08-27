@@ -9,6 +9,12 @@
 #define RAD2DEG (180.0f/PI)
 #define DEG2RAD (PI/180.0f)
 
+#define swap(a, b) do { \
+    typeof(a) __tmp__ = a; \
+    a = b; \
+    b = __tmp__; \
+} while(0)
+
 static inline float
 randf() {
     return (float)rand()/((float)RAND_MAX + 1.0f);
@@ -46,7 +52,7 @@ static inline float v2_distance(struct v2 v0, struct v2 v1) { return v2_mag(v2_s
 static inline float v2_to_angle(struct v2 v) { return atan2f(-v.y, v.x); }
 static inline float v2_to_angle2(struct v2 v0, struct v2 v1) { return atan2f(v0.y - v1.y, v1.x - v0.x); }
 static inline struct v2 v2_from_angle(float a) { return V2(cosf(a), -sinf(a)); }
-static inline struct v2 v2_direction(struct v2 v0, struct v2 v1) { return v2_from_angle(v2_to_angle2(v0, v1)); }
+static inline struct v2 v2_direction(struct v2 v0, struct v2 v1) { return v2_unit(v2_sub(v1, v0)); }
 
 struct v2u { uint32_t x, y; };
 #define V2U(x, y) ((struct v2u) {x, y})
@@ -122,7 +128,18 @@ static inline struct v2 v2_lerp_smooth(struct v2 a, struct v2 b, float speed, fl
     default:    f32_lerp_smooth  \
 )(a, b, speed, t)
 
-static inline float signf(float x) { return (x > 0.0f) - (x < 0.0f); }
+static inline float     f32_sign(float     v) { return (v > 0.0f) - (v < 0.0f); }
+static inline struct v2  v2_sign(struct v2 v) { return V2(f32_sign(v.x), f32_sign(v.y)); }
+static inline float     f32_sign_nonzero(float     v) { return v > 0.0f ? 1.0f : -1.0f; }
+static inline struct v2  v2_sign_nonzero(struct v2 v) { return V2(f32_sign_nonzero(v.x), f32_sign_nonzero(v.y)); }
+#define sign(v) _Generic((v), \
+    struct v2: v2_sign, \
+    default:   f32_sign \
+)(v)
+#define sign_nonzero(v) _Generic((v), \
+    struct v2: v2_sign_nonzero, \
+    default:   f32_sign_nonzero \
+)(v)
 
 struct smoothstep_params {
     float a;

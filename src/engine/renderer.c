@@ -260,12 +260,6 @@ renderer_submit(void) {
         g_renderer.indices[i].i[4] = g_renderer.indices_to_sort[i].start + 3;
         g_renderer.indices[i].i[5] = g_renderer.indices_to_sort[i].start + 0;
     }
-    for (uint32_t i = 0; i < g_renderer.quads_amount; i++) {
-        g_renderer.vertices[i].v[0].position = v2_sub(g_renderer.vertices[i].v[0].position, g_renderer.offset);
-        g_renderer.vertices[i].v[1].position = v2_sub(g_renderer.vertices[i].v[1].position, g_renderer.offset);
-        g_renderer.vertices[i].v[2].position = v2_sub(g_renderer.vertices[i].v[2].position, g_renderer.offset);
-        g_renderer.vertices[i].v[3].position = v2_sub(g_renderer.vertices[i].v[3].position, g_renderer.offset);
-    }
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(g_renderer.sh_default);
@@ -306,10 +300,10 @@ renderer_request_sprite_internal(enum sprite sprite, struct v2 position, struct 
     static_assert(sizeof (struct vertex) == sizeof (float) * 12);
     struct v2 cos_sin = { cosf(p.angle), sinf(p.angle) };
     struct vertex *vertices = g_renderer.vertices[g_renderer.quads_amount].v;
-    vertices[0].position = position;
-    vertices[1].position = position;
-    vertices[2].position = position;
-    vertices[3].position = position;
+    vertices[0].position = v2_sub(position, g_renderer.offset);
+    vertices[1].position = v2_sub(position, g_renderer.offset);
+    vertices[2].position = v2_sub(position, g_renderer.offset);
+    vertices[3].position = v2_sub(position, g_renderer.offset);
     /* Note for the future: The atlas must have extruding between sprites (2 px is enough) */
     vertices[0].texcoord = v2_add(tpos, V2(  0.0f, tsiz.y));
     vertices[1].texcoord = v2_add(tpos, V2(tsiz.x, tsiz.y));
@@ -400,10 +394,10 @@ renderer_request_circle(struct v2 position, float radius, struct color color, fl
     }
     static_assert(sizeof (struct vertex) == sizeof (float) * 12);
     struct vertex *vertices = g_renderer.vertices_circle[g_renderer.circles_amount].v;
-    vertices[0].position = v2_add(position, V2(-radius, -radius));
-    vertices[1].position = v2_add(position, V2(+radius, -radius));
-    vertices[2].position = v2_add(position, V2(+radius, +radius));
-    vertices[3].position = v2_add(position, V2(-radius, +radius));
+    vertices[0].position = v2_sub(v2_add(position, V2(-radius, -radius)), g_renderer.offset);
+    vertices[1].position = v2_sub(v2_add(position, V2(+radius, -radius)), g_renderer.offset);
+    vertices[2].position = v2_sub(v2_add(position, V2(+radius, +radius)), g_renderer.offset);
+    vertices[3].position = v2_sub(v2_add(position, V2(-radius, +radius)), g_renderer.offset);
     vertices[0].origin = V2(-1.0f, -1.0f); /* treating the 'origin' like normalized coordinates */
     vertices[1].origin = V2(+1.0f, -1.0f); /* treating the 'origin' like normalized coordinates */
     vertices[2].origin = V2(+1.0f, +1.0f); /* treating the 'origin' like normalized coordinates */

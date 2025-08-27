@@ -20,14 +20,16 @@ ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, WEAPON_ATTACK|KNOCKBACK)
 
 ON_UPDATE_SYSTEM(check_to_follow_target, CHECK_TO_FOLLOW, FOLLOW|SLIME_ATTACK) {
     auto target = entity_get_data(self->target);
-    if (check_rect_circle(target->position, target->collider_size, self->position, self->view_radius)) {
+    if (check_rect_circle(target->position, target->collider_size, self->position, self->view_radius) &&
+        !map_line_intersects_wall(self->position, target->position)) {
         entity_add_flags(self, FOLLOW);
     }
 }
 
 ON_UPDATE_SYSTEM(follow_target, FOLLOW, KNOCKBACK) {
     auto target = entity_get_data(self->target);
-    if (!check_rect_circle(target->position, target->collider_size, self->position, self->following_radius)) {
+    if (!check_rect_circle(target->position, target->collider_size, self->position, self->following_radius) ||
+        map_line_intersects_wall(self->position, target->position)) {
         self->speed = 0.0f;
         entity_remove_flags(self, FOLLOW);
         return;
@@ -337,4 +339,11 @@ ON_RENDER_SYSTEM(render_view_radius, RENDER_VIEW_RADIUS, _) {
         YELLOW,
         0.4f
     );
+}
+
+ON_RENDER_SYSTEM(render_line_to_target, RENDER_LINE_TO_TARGET, _) {
+    if (!global.show_debug) return;
+    auto target_pos = entity_get_data(self->target)->position;
+    auto color      = map_line_intersects_wall(self->position, target_pos) ? RED : GREEN;
+    renderer_request_line(self->position, target_pos, UNIT_ONE_PIXEL, color, 0.6f, INFINITY);
 }

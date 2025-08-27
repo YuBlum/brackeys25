@@ -92,4 +92,8 @@ entity_manager_update(float dt) {
     auto e = g_entities.cached[i];
     if (entity_has_flags(e, RENDER_VIEW_RADIUS)) render_view_radius(e);
   }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_has_flags(e, RENDER_LINE_TO_TARGET)) render_line_to_target(e);
+  }
 }

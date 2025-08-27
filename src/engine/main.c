@@ -11,32 +11,6 @@
 
 void
 test_entities(void) {
-    //auto slime  = entity_make(
-    //    0
-    //    | RENDER_SPRITE
-    //    | RENDER_HITBOX
-    //    | RENDER_VIEW_RADIUS
-    //    | MOVABLE
-    //    | AI_CONTROLLED
-    //    | DEPTH_BY_BOTTOM
-    //    | CHECK_TO_FOLLOW
-    //    | SQUISHY
-    //);
-
-    //slime->sprite            = SPR_SLIME;
-    //slime->position          = V2S(-4.0f);
-    //slime->scale             = V2S(1.0f);
-    //slime->looking_direction = 1.0f;
-    //slime->collider_size     = V2(1.0f, 0.5f);
-    //slime->hitbox_size       = V2S(1.0f);
-    //slime->hit_points        = 10;
-    //slime->view_radius       = 4.0f;
-    //slime->following_radius  = 6.0f;
-    //slime->target            = entity_get_handle(player);
-    //slime->walk_speed        = 4.0f;
-    //slime->recoil_speed      = 5.0f;
-    //slime->opacity           = 1.0f;
-    //slime->invincible_max    = 0.3f;
 
     //auto cursor = entity_make(RENDER_ANIMATION|STATE_MACHINE|FOLLOW_CURSOR);
     //cursor->state_animation[STM_IDLE]    = ANIM_AIM_IDLE;

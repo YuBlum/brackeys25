@@ -25,5 +25,6 @@ void render_sprite(struct entity *self);
 void render_collider(struct entity *self);
 void render_hitbox(struct entity *self);
 void render_view_radius(struct entity *self);
+void render_line_to_target(struct entity *self);
 
 #endif/*__SYSTEMS_H__*/
