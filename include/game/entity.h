@@ -23,6 +23,7 @@ static inline bool entity_handle_compare(struct entity_handle a, struct entity_h
 struct entity {
     enum entity_flag flags;
     enum entity_flag next_flags;
+    enum entity_flag attack_flag;
     enum sprite sprite;
     struct v2 position;
     struct v2 next_position;
@@ -33,8 +34,10 @@ struct entity {
     struct v2 scale;
     struct v2 origin;
     struct v2 offset;
+    float attack_distance;
     float speed;
     float walk_speed;
+    float attack_speed;
     float recoil_speed;
     float angle;
     float depth;
@@ -45,8 +48,8 @@ struct entity {
     float start_angle;
     float end_angle;
     float attack_anticipation;
-    float view_radius;
-    float following_radius;
+    float start_following_radius;
+    float stop_following_radius;
     float wait_to_attack;
     float invincible_timer;
     float invincible_max;

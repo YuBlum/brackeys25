@@ -10,11 +10,11 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, CHECK_TO_FOLLOW) && !entity_has_one_of_flags(e, FOLLOW|SLIME_ATTACK)) check_to_follow_target(e, dt);
+    if (entity_has_flags(e, AI_CONTROLLED) && !entity_has_one_of_flags(e, FOLLOWING|SLIME_ATTACK)) check_to_follow_target(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, FOLLOW) && !entity_has_one_of_flags(e, KNOCKBACK)) follow_target(e, dt);
+    if (entity_has_flags(e, FOLLOWING) && !entity_has_one_of_flags(e, SLIME_ATTACK|KNOCKBACK)) follow_target(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
@@ -46,7 +46,7 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, FOLLOW|SQUISHY) && !entity_has_one_of_flags(e, KNOCKBACK)) squishy_animation(e, dt);
+    if (entity_has_flags(e, FOLLOWING|SQUISHY) && !entity_has_one_of_flags(e, KNOCKBACK)) squishy_animation(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];

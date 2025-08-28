@@ -11,12 +11,19 @@ check_rect_rect(struct v2 p0, struct v2 s0, struct v2 p1, struct v2 s1) {
            p0.y + s0.y * 0.5f > p1.y - s1.y * 0.5f;
 }
 
-
 static inline bool
 check_rect_circle(struct v2 rp, struct v2 s, struct v2 cp, float r) {
     struct v2 d = v2_sub(cp, V2(clamp(cp.x, rp.x - s.x * 0.5f, rp.x + s.x * 0.5f),
                                 clamp(cp.y, rp.y - s.y * 0.5f, rp.y + s.y * 0.5f)));
     return (d.x*d.x + d.y*d.y) <= r*r;
+}
+
+static inline bool
+check_rect_point(struct v2 p0, struct v2 s0, struct v2 p1) {
+    return p0.x - s0.x * 0.5f < p1.x &&
+           p0.x + s0.x * 0.5f > p1.x &&
+           p0.y - s0.y * 0.5f < p1.y &&
+           p0.y + s0.y * 0.5f > p1.y;
 }
 
 static inline float

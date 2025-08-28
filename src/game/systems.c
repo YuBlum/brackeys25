@@ -18,34 +18,46 @@ ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, WEAPON_ATTACK|KNOCKBACK)
     ));
 }
 
-ON_UPDATE_SYSTEM(check_to_follow_target, CHECK_TO_FOLLOW, FOLLOW|SLIME_ATTACK) {
+ON_UPDATE_SYSTEM(check_to_follow_target, AI_CONTROLLED, FOLLOWING|SLIME_ATTACK) {
     auto target = entity_get_data(self->target);
-    if (check_rect_circle(target->position, target->collider_size, self->position, self->view_radius) &&
-        !map_line_intersects_wall(self->position, target->position)) {
-        entity_add_flags(self, FOLLOW);
+    if (check_rect_circle(target->position, target->collider_size, self->position, self->start_following_radius) &&
+        !map_line_intersects_wall(self->position, target->position, 0)) {
+        entity_add_flags(self, FOLLOWING);
     }
 }
 
-ON_UPDATE_SYSTEM(follow_target, FOLLOW, KNOCKBACK) {
+ON_UPDATE_SYSTEM(follow_target, FOLLOWING, SLIME_ATTACK|KNOCKBACK) {
     auto target = entity_get_data(self->target);
-    if (!check_rect_circle(target->position, target->collider_size, self->position, self->following_radius) ||
-        map_line_intersects_wall(self->position, target->position)) {
-        self->speed = 0.0f;
-        entity_remove_flags(self, FOLLOW);
-        return;
+    struct v2 target_pos = target->position;
+    bool way_is_blocked;
+    {
+        auto test_position = v2_add(self->position, v2_muls(v2_direction(self->position, target_pos), self->walk_speed * dt));
+        for (int i = -1; i <= 1 && !way_is_blocked; i++) {
+            for (int j = -1; j <= 1 && !way_is_blocked; j++) {
+                struct v2 tile_position = V2(roundf(test_position.x) + i, roundf(test_position.y) + j);
+                if (map_get_tile(tile_position) != '#') continue;
+                if (check_rect_rect(test_position, self->collider_size, tile_position, V2S(1.0f))) way_is_blocked = true;
+            }
+        }
     }
-    constexpr auto ATTACK_DIST = 1.5f;
+    if (map_line_intersects_wall(self->position, target->position, 0) || way_is_blocked) {
+        if (!map_indirect_los_to_player(self, dt, &target_pos)) {
+            self->speed = 0.0f;
+            entity_remove_flags(self, FOLLOWING);
+            return;
+        }
+    }
     self->direction = V2S(0.0f);
     if (entity_has_flags(self, INVINCIBLE)) return;
-    if (v2_distance(self->position, target->position) <= ATTACK_DIST) {
-        entity_add_flags(self, SLIME_ATTACK);
-        entity_remove_flags(self, FOLLOW);
-        self->speed          = 10.0f; // attack speed
+    if (v2_distance(self->position, target->position) <= self->attack_distance) {
+        entity_add_flags(self, self->attack_flag);
+        self->speed          = self->attack_speed;
         self->wait_to_attack = 0.1f; // in seconds
     } else {
         self->speed     = self->walk_speed;
-        self->direction = v2_direction(self->position, target->position);
+        self->direction = v2_direction(self->position, target_pos);
     }
+    //renderer_request_circle(target_pos, 0.25f, GREEN, 0.6f);
 }
 
 ON_UPDATE_SYSTEM(slime_attack, SLIME_ATTACK, _) {
@@ -148,7 +160,7 @@ ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, WEAPON_ATTACK|KNOCKBACK) {
     }
 }
 
-ON_UPDATE_SYSTEM(squishy_animation, FOLLOW|SQUISHY, KNOCKBACK) {
+ON_UPDATE_SYSTEM(squishy_animation, FOLLOWING|SQUISHY, KNOCKBACK) {
     constexpr auto SQUISHY_FREQUENCY = 2.0f;
     constexpr auto SQUISHY_SCALE     = 0.25f;
     self->squishy_timer += dt;
@@ -174,7 +186,7 @@ ON_UPDATE_SYSTEM(knockback, KNOCKBACK, _) {
 ON_UPDATE_SYSTEM(update_weapon_when_not_attacking, HAS_WEAPON, WEAPON_ATTACK) {
     constexpr auto WEAPON_SLOPE = (float)PI/6.0;
     auto weapon = entity_get_data(self->weapon);
-    weapon->offset            = V2(-0.4f * self->looking_direction, 0.0f);
+    weapon->offset            = V2(-0.4f * self->looking_direction, -self->origin.y);
     weapon->angle             = self->angle - WEAPON_SLOPE * self->looking_direction;
     weapon->looking_direction = self->looking_direction;
     weapon->scale             = self->scale;
@@ -188,7 +200,7 @@ ON_UPDATE_SYSTEM(update_weapon_when_not_attacking, HAS_WEAPON, WEAPON_ATTACK) {
         if (!attack_y) {
             weapon->start_angle     = 0;
             weapon->end_angle       = (2*PI/3) * attack_x;
-            weapon->offset          = V2(0.5f * attack_x, -0.25f);
+            weapon->offset          = V2(0.5f * attack_x, -0.25f - self->origin.y);
             weapon->origin          = V2(0.0f, -0.5f);
             weapon->scale.x         = attack_x;
             weapon->collider_offset = V2(0.25f*attack_x, 0.25f);
@@ -196,7 +208,7 @@ ON_UPDATE_SYSTEM(update_weapon_when_not_attacking, HAS_WEAPON, WEAPON_ATTACK) {
         } else {
             weapon->start_angle = (attack_y * weapon->looking_direction) > 0.0f ? -PI/2 : 3*PI/2;
             weapon->end_angle   = PI/2;
-            weapon->offset      = V2(0.0f, 0.5f * attack_y);
+            weapon->offset      = V2(0.0f, 0.5f * attack_y - self->origin.y);
             weapon->origin      = V2(0.0f, -0.5f);
             weapon->scale.y     = weapon->looking_direction;
             weapon->collider_offset = V2(0.5f*attack_x, 0.25f*attack_y);
@@ -308,7 +320,7 @@ ON_RENDER_SYSTEM(render_collider, RENDER_COLLIDER, _) {
     renderer_request_rect(
         v2_add(self->position, self->collider_offset),
         self->collider_size,
-        GREEN,
+        RGB(0.2f, 0.8f, 0.2f),
         0.4f,
         -100.0f
     );
@@ -329,13 +341,13 @@ ON_RENDER_SYSTEM(render_view_radius, RENDER_VIEW_RADIUS, _) {
     if (!global.show_debug) return;
     renderer_request_circle(
         self->position,
-        self->following_radius,
+        self->stop_following_radius,
         BLUE,
         0.2f
     );
     renderer_request_circle(
         self->position,
-        self->view_radius,
+        self->start_following_radius,
         YELLOW,
         0.4f
     );
@@ -344,6 +356,6 @@ ON_RENDER_SYSTEM(render_view_radius, RENDER_VIEW_RADIUS, _) {
 ON_RENDER_SYSTEM(render_line_to_target, RENDER_LINE_TO_TARGET, _) {
     if (!global.show_debug) return;
     auto target_pos = entity_get_data(self->target)->position;
-    auto color      = map_line_intersects_wall(self->position, target_pos) ? RED : GREEN;
+    auto color      = map_line_intersects_wall(self->position, target_pos, 0) ? RED : GREEN;
     renderer_request_line(self->position, target_pos, UNIT_ONE_PIXEL, color, 0.6f, INFINITY);
 }

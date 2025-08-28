@@ -20,13 +20,12 @@ enum entity_flag {
   WAS_HIT = 1 << 13,
   DEPTH_BY_BOTTOM = 1 << 14,
   KNOCKBACK = 1 << 15,
-  CHECK_TO_FOLLOW = 1 << 16,
-  FOLLOW = 1 << 17,
-  SLIME_ATTACK = 1 << 18,
-  INVINCIBLE = 1 << 19,
-  SQUISHY = 1 << 20,
-  COLLIDE_WITH_WALL = 1 << 21,
-  CAMERA_FOCUS = 1 << 22,
+  FOLLOWING = 1 << 16,
+  SLIME_ATTACK = 1 << 17,
+  INVINCIBLE = 1 << 18,
+  SQUISHY = 1 << 19,
+  COLLIDE_WITH_WALL = 1 << 20,
+  CAMERA_FOCUS = 1 << 21,
 };
 
 #endif/*__ENTITY_FLAGS_H__*/
