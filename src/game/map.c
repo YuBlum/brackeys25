@@ -4,13 +4,14 @@
 #include "engine/collision.h"
 #include "game/entity.h"
 #include "game/map.h"
+#include "game/global.h"
 
 static char g_map[MAP_W*MAP_H] __attribute__((nonstring)) =
 "#########################"
 "#.......................#"
 "#.......................#"
 "#.......................#"
-"#............#######....#"
+"#...S........#######....#"
 "#............#######....#"
 "#.......................#"
 "#.......................#"
@@ -211,9 +212,11 @@ map_update(void) {
                 renderer_request_rect(position, V2S(1.0f), GRAY(0.5f), 1.0f, INFINITY);
             }
         }
-        for (uint32_t y = 0; y < MAP_H; y++) {
-            for (uint32_t x = 0; x < MAP_W; x++) {
-                renderer_request_circle(V2(x, MAP_H - y), 0.125f, g_can_see_player[y][x] < INFINITY ? GREEN : RGB(0.5f, 0.5f, 0.0f), 0.6f);
+        if (global.show_debug) {
+            for (uint32_t y = 0; y < MAP_H; y++) {
+                for (uint32_t x = 0; x < MAP_W; x++) {
+                    renderer_request_circle(V2(x, MAP_H - y), 0.125f, g_can_see_player[y][x] < INFINITY ? GREEN : RGB(0.5f, 0.5f, 0.0f), 0.6f);
+                }
             }
         }
     }

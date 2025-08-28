@@ -54,10 +54,23 @@ ON_UPDATE_SYSTEM(follow_target, FOLLOWING, SLIME_ATTACK|KNOCKBACK) {
         self->speed          = self->attack_speed;
         self->wait_to_attack = 0.1f; // in seconds
     } else {
+        auto seek = v2_direction(self->position, target_pos);
+        auto cached = entity_manager_get_cached();
+        constexpr auto REPEL_RADIUS = 1.0f;
+        auto avoid = V2S(0.0f);
+        for (uint32_t i = 0; i < cached.amount; i++) {
+            auto other = cached.data[i];
+            if (!entity_has_flags(other, FOLLOWING) || !entity_handle_compare(other->target, self->target) || other == self) continue;
+            auto distance = v2_distance(self->position, other->position);
+            if (distance < REPEL_RADIUS) {
+                auto dir_to_self = v2_direction(other->position, self->position);
+                auto falloff = clamp(1.0f - (distance / REPEL_RADIUS), 0.0f, 1.0f); // to avoid jittering
+                avoid = v2_add(avoid, v2_muls(dir_to_self, falloff));
+            }
+        }
+        self->direction = v2_unit(lerp(seek, avoid, 0.5f));
         self->speed     = self->walk_speed;
-        self->direction = v2_direction(self->position, target_pos);
     }
-    //renderer_request_circle(target_pos, 0.25f, GREEN, 0.6f);
 }
 
 ON_UPDATE_SYSTEM(slime_attack, SLIME_ATTACK, _) {
