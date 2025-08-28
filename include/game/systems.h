@@ -3,8 +3,11 @@
 
 #include "game/entity.h"
 
+void particle(struct entity *self, float dt);
 void keyboard_control(struct entity *self, float dt);
 void check_to_follow_target(struct entity *self, float dt);
+void start_wandering(struct entity *self, float dt);
+void wander(struct entity *self, float dt);
 void follow_target(struct entity *self, float dt);
 void slime_attack(struct entity *self, float dt);
 void update_invincibility(struct entity *self, float dt);

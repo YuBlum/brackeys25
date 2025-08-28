@@ -28,6 +28,7 @@ struct v2 renderer_get_offset(void);
 void renderer_set_offset(struct v2 offset);
 
 const struct animation_data *renderer_animation_get_data(enum animation animation);
+struct v2 renderer_sprite_get_size(enum sprite sprite);
 
 struct renderer_params {
     struct v2 origin;

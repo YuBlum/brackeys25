@@ -285,6 +285,17 @@ renderer_animation_get_data(enum animation animation) {
     return &g_atlas_animations[animation];
 }
 
+struct v2
+renderer_sprite_get_size(enum sprite sprite) {
+#if DEV
+    if (sprite >= SPRITES_AMOUNT) {
+        log_warnlf("%s: sprite with number '%d' doesn't exists", __func__, sprite);
+        return V2S(0.0f);
+    }
+#endif
+    return v2_mul(g_atlas_sprite_sizes[sprite], V2(ATLAS_WIDTH * UNIT_ONE_PIXEL, ATLAS_HEIGHT * UNIT_ONE_PIXEL));
+}
+
 static void
 renderer_request_sprite_internal(enum sprite sprite, struct v2 position, struct v2 hsiz, struct v2 tpos, struct v2 tsiz, struct renderer_params p) {
 #if DEV

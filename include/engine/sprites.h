@@ -4,6 +4,7 @@
 enum sprite {
     SPR_PLAYER = 0,
     SPR_PIXEL,
+    SPR_ATTENTION,
     SPR_AIM,
     SPR_FONT,
     SPR_TEST,

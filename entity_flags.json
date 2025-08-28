@@ -21,7 +21,10 @@
     "INVINCIBLE",
     "SQUISHY",
     "COLLIDE_WITH_WALL",
-    "CAMERA_FOCUS"
+    "CAMERA_FOCUS",
+    "WANDER",
+    "BOUNCE_OF_WALL",
+    "PARTICLE"
   ]
 }
 

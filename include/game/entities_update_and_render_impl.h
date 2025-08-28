@@ -6,11 +6,23 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
+    if (entity_has_flags(e, PARTICLE)) particle(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
     if (entity_has_flags(e, KEYBOARD_CONTROLLED) && !entity_has_one_of_flags(e, WEAPON_ATTACK|KNOCKBACK)) keyboard_control(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
     if (entity_has_flags(e, AI_CONTROLLED) && !entity_has_one_of_flags(e, FOLLOWING|SLIME_ATTACK)) check_to_follow_target(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_has_flags(e, AI_CONTROLLED) && !entity_has_one_of_flags(e, WANDER|FOLLOWING|SLIME_ATTACK)) start_wandering(e, dt);
+  }
+  for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
+    auto e = g_entities.cached[i];
+    if (entity_has_flags(e, WANDER|AI_CONTROLLED) && !entity_has_one_of_flags(e, FOLLOWING|SLIME_ATTACK)) wander(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
@@ -46,7 +58,7 @@ entity_manager_update(float dt) {
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];
-    if (entity_has_flags(e, FOLLOWING|SQUISHY) && !entity_has_one_of_flags(e, KNOCKBACK)) squishy_animation(e, dt);
+    if (entity_has_flags(e, SQUISHY) && !entity_has_one_of_flags(e, KNOCKBACK)) squishy_animation(e, dt);
   }
   for (uint32_t i = 0; i < g_entities.cached_amount; i++) {
     auto e = g_entities.cached[i];

@@ -106,6 +106,7 @@ map_init(void) {
                         | DEPTH_BY_BOTTOM
                         | SQUISHY
                         | COLLIDE_WITH_WALL
+                        | BOUNCE_OF_WALL
                     );
 
                     slime->sprite                 = SPR_SLIME;
@@ -123,7 +124,6 @@ map_init(void) {
                     slime->invincible_max         = 0.3f;
                     slime->attack_distance        = 1.5f;
                     slime->attack_flag            = SLIME_ATTACK;
-                    slime->stop_following_radius  = 6.0f;
                     slime->start_following_radius = 4.0f;
                 } break;
                 default: {
@@ -190,7 +190,7 @@ map_update(void) {
     // logic
     {
         auto player = entity_get_data(player_handle);
-        constexpr auto SEE_PLAYER_RADIUS = 5.0f;
+        constexpr auto SEE_PLAYER_RADIUS = 8.0f;
         for (uint32_t y = 0; y < MAP_H; y++) {
             for (uint32_t x = 0; x < MAP_W; x++) {
                 if (g_map[y*MAP_W+x] == '#') continue;

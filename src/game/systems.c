@@ -10,6 +10,15 @@
 #define ON_UPDATE_SYSTEM(system, must_have, must_not_have) void system(struct entity *self, [[maybe_unused]] float dt)
 #define ON_RENDER_SYSTEM(system, must_have, must_not_have) void system(struct entity *self)
 
+ON_UPDATE_SYSTEM(particle, PARTICLE, _) {
+    auto t = min(self->lifetime_current/self->lifetime, 1.0f);
+    self->opacity = lerp(1.0f, 0.0f, t);
+    self->lifetime_current += dt;
+    if (self->lifetime_current >= self->lifetime) {
+        entity_destroy(self);
+    }
+}
+
 ON_UPDATE_SYSTEM(keyboard_control, KEYBOARD_CONTROLLED, WEAPON_ATTACK|KNOCKBACK) {
     self->speed     = self->walk_speed;
     self->direction = v2_unit(V2(
@@ -23,10 +32,44 @@ ON_UPDATE_SYSTEM(check_to_follow_target, AI_CONTROLLED, FOLLOWING|SLIME_ATTACK) 
     if (check_rect_circle(target->position, target->collider_size, self->position, self->start_following_radius) &&
         !map_line_intersects_wall(self->position, target->position, 0)) {
         entity_add_flags(self, FOLLOWING);
+        entity_remove_flags(self, WANDER);
+        self->stopped_timer = 0.0f;
+        self->direction = V2S(0.0f);
+        self->wait_to_follow = 0.3f;
+        auto attention_part = entity_make(RENDER_SPRITE|MOVABLE|PARTICLE);
+        attention_part->position          = V2(self->position.x, self->position.y + renderer_sprite_get_size(self->sprite).y * 0.5f);
+        attention_part->direction         = V2(0.0f, 1.0f);
+        attention_part->speed             = 2.0f;
+        attention_part->sprite            = SPR_ATTENTION;
+        attention_part->opacity           = 1.0f;
+        attention_part->scale             = V2S(1.0f);
+        attention_part->lifetime          = 0.5f;
+        attention_part->looking_direction = 1.0f;
+    }
+}
+
+ON_UPDATE_SYSTEM(start_wandering, AI_CONTROLLED, WANDER|FOLLOWING|SLIME_ATTACK) {
+    self->stopped_timer -= dt;
+    if (self->stopped_timer <= 0.0f) {
+        self->wander_timer = randf_from_to(0.5f, 2.5f);
+        self->direction = v2_from_angle(randf() * PI*2);
+        self->speed = self->walk_speed;
+        entity_add_flags(self, WANDER);
+    }
+}
+
+ON_UPDATE_SYSTEM(wander, WANDER|AI_CONTROLLED, FOLLOWING|SLIME_ATTACK) {
+    self->wander_timer -= dt;
+    if (self->wander_timer <= 0.0f) {
+        self->stopped_timer = randf_from_to(0.1f, 0.5f);
+        self->direction = V2S(0.0f);
+        entity_remove_flags(self, WANDER);
     }
 }
 
 ON_UPDATE_SYSTEM(follow_target, FOLLOWING, SLIME_ATTACK|KNOCKBACK) {
+    self->wait_to_follow -= dt;
+    if (self->wait_to_follow > 0.0f) return;
     auto target = entity_get_data(self->target);
     struct v2 target_pos = target->position;
     bool way_is_blocked;
@@ -113,32 +156,32 @@ ON_UPDATE_SYSTEM(get_next_position, MOVABLE, _) {
 }
 
 ON_UPDATE_SYSTEM(collide_with_map_walls, MOVABLE|COLLIDE_WITH_WALL, _) {
-  auto x_test = V2(self->next_position.x, self->position.y);
-  auto y_test = V2(self->position.x, self->next_position.y);
-  float tile_position_x, tile_position_y;
-  bool tile_found_x = false, tile_found_y = false;
-  for (int i = -1; i <= 1; i++) {
-    for (int j = -1; j <= 1; j++) {
-      struct v2 tile_position = V2(roundf(self->position.x) + i, roundf(self->position.y) + j);
-      if (map_get_tile(tile_position) != '#') continue;
-      if (check_rect_rect(x_test, self->collider_size, tile_position, V2S(1.0f))) {
-        tile_found_x = true;
-        tile_position_x = tile_position.x;
-      }
-      if (check_rect_rect(y_test, self->collider_size, tile_position, V2S(1.0f))) {
-        tile_found_y = true;
-        tile_position_y = tile_position.y;
-      }
+    auto x_test = V2(self->next_position.x, self->position.y);
+    auto y_test = V2(self->position.x, self->next_position.y);
+    float tile_position_x, tile_position_y;
+    bool tile_found_x = false, tile_found_y = false;
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            struct v2 tile_position = V2(roundf(self->position.x) + i, roundf(self->position.y) + j);
+            if (map_get_tile(tile_position) != '#') continue;
+            if (check_rect_rect(x_test, self->collider_size, tile_position, V2S(1.0f))) {
+                tile_found_x = true;
+                tile_position_x = tile_position.x;
+            }
+            if (check_rect_rect(y_test, self->collider_size, tile_position, V2S(1.0f))) {
+                tile_found_y = true;
+                tile_position_y = tile_position.y;
+            }
+        }
     }
-  }
-  if (tile_found_x) {
-    self->next_position.x = resolve_rect_rect_axis(self->position.x, self->collider_size.x, tile_position_x, 1.0f);
-    self->direction.x = 0.0f;
-  }
-  if (tile_found_y) {
-    self->next_position.y = resolve_rect_rect_axis(self->position.y, self->collider_size.y, tile_position_y, 1.0f);
-    self->direction.y = 0.0f;
-  }
+    if (tile_found_x) {
+        self->next_position.x = resolve_rect_rect_axis(self->position.x, self->collider_size.x, tile_position_x, 1.0f);
+        self->direction.x = entity_has_flags(self, BOUNCE_OF_WALL) ? self->direction.x * -1.0f : 0.0f;
+    }
+    if (tile_found_y) {
+        self->next_position.y = resolve_rect_rect_axis(self->position.y, self->collider_size.y, tile_position_y, 1.0f);
+        self->direction.y = entity_has_flags(self, BOUNCE_OF_WALL) ? self->direction.y * -1.0f : 0.0f;
+    }
 }
 
 ON_UPDATE_SYSTEM(move, MOVABLE, _) {
@@ -173,7 +216,8 @@ ON_UPDATE_SYSTEM(wiggle_animation, MOVABLE|WIGGLE, WEAPON_ATTACK|KNOCKBACK) {
     }
 }
 
-ON_UPDATE_SYSTEM(squishy_animation, FOLLOWING|SQUISHY, KNOCKBACK) {
+ON_UPDATE_SYSTEM(squishy_animation, SQUISHY, KNOCKBACK) {
+    if (self->direction.x == 0.0f && self->direction.y == 0.0f) return;
     constexpr auto SQUISHY_FREQUENCY = 2.0f;
     constexpr auto SQUISHY_SCALE     = 0.25f;
     self->squishy_timer += dt;
@@ -352,12 +396,6 @@ ON_RENDER_SYSTEM(render_hitbox, RENDER_HITBOX, _) {
 
 ON_RENDER_SYSTEM(render_view_radius, RENDER_VIEW_RADIUS, _) {
     if (!global.show_debug) return;
-    renderer_request_circle(
-        self->position,
-        self->stop_following_radius,
-        BLUE,
-        0.2f
-    );
     renderer_request_circle(
         self->position,
         self->start_following_radius,

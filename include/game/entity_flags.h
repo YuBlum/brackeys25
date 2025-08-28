@@ -26,6 +26,9 @@ enum entity_flag {
   SQUISHY = 1 << 19,
   COLLIDE_WITH_WALL = 1 << 20,
   CAMERA_FOCUS = 1 << 21,
+  WANDER = 1 << 22,
+  BOUNCE_OF_WALL = 1 << 23,
+  PARTICLE = 1 << 24,
 };
 
 #endif/*__ENTITY_FLAGS_H__*/

@@ -21,16 +21,18 @@ static const struct v2 g_atlas_sprite_positions[SPRITES_AMOUNT] = {
     { 4.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
     { 24.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
     { 29.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 97.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 908.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 950.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 970.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
-    { 990.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 38.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 106.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 917.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 959.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 979.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
+    { 999.0f * ATLAS_PIXEL_W, 4.0f * ATLAS_PIXEL_H },
 };
 
 static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {
     { 16.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
     { 1.0f * ATLAS_PIXEL_W, 1.0f * ATLAS_PIXEL_H },
+    { 5.0f * ATLAS_PIXEL_W, 13.0f * ATLAS_PIXEL_H },
     { 42.0f * ATLAS_PIXEL_W, 7.0f * ATLAS_PIXEL_H },
     { 807.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
     { 32.0f * ATLAS_PIXEL_W, 16.0f * ATLAS_PIXEL_H },
@@ -42,6 +44,7 @@ static const struct v2 g_atlas_sprite_sizes[SPRITES_AMOUNT] = {
 static const struct v2 g_atlas_sprite_half_sizes[SPRITES_AMOUNT] = {
     { 8.0f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
     { 0.5f * UNIT_ONE_PIXEL, 0.5f * UNIT_ONE_PIXEL },
+    { 2.5f * UNIT_ONE_PIXEL, 6.5f * UNIT_ONE_PIXEL },
     { 21.0f * UNIT_ONE_PIXEL, 3.5f * UNIT_ONE_PIXEL },
     { 403.5f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
     { 16.0f * UNIT_ONE_PIXEL, 8.0f * UNIT_ONE_PIXEL },
